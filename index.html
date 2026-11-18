@@ -1,0 +1,2283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#05070b">
+<title>时空救赎 · 下一次，我一定好好爱你</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;background:#04060a;color:#dfe6ef;overflow:hidden;
+    font-family:"Noto Serif SC","Source Han Serif SC","Songti SC",SimSun,serif;}
+  body{display:flex;align-items:center;justify-content:center;}
+  #frame{position:relative;width:100%;max-width:480px;height:100vh;height:100dvh;overflow:hidden;
+    background:#05070b;box-shadow:0 0 90px rgba(0,0,0,.9);}
+  #frame *{scrollbar-width:none;-ms-overflow-style:none;}
+  #frame *::-webkit-scrollbar{width:0;height:0;display:none;}
+  @media(min-width:900px){
+    #frame{border-left:1px solid rgba(150,180,210,.12);border-right:1px solid rgba(150,180,210,.12);}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;
+      background:radial-gradient(circle at 50% 40%,rgba(60,90,120,.18),transparent 62%);}
+  }
+  #rain{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.55;}
+  #stageBg{position:absolute;inset:0;z-index:0;
+    background:linear-gradient(180deg,#0a1119 0%,#070b12 45%,#04060a 100%);
+    background-size:cover;background-position:center;
+    transition:opacity .5s ease, filter .5s ease;}
+  #stageBg::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(4,7,12,.18) 0%,rgba(4,7,12,.26) 45%,rgba(4,7,12,.74) 100%);}
+  #vignette{position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 44%,transparent 48%,rgba(0,0,0,.45) 100%);}
+  .screen{position:absolute;inset:0;z-index:5;display:none;flex-direction:column;min-height:0;}
+  .screen.on{display:flex;}
+  .fade-in{animation:fadeIn .6s ease both;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes fadeOnly{from{opacity:0}to{opacity:1}}
+
+  /* ---------- 标题 ---------- */
+  #screen-title{justify-content:flex-end;padding:0 30px calc(42px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(4,7,12,.18) 0%,rgba(4,7,12,.55) 52%,rgba(4,7,12,.96) 100%);}
+  .t-eyebrow{font-size:11px;letter-spacing:.5em;color:#8ea6bd;margin-bottom:18px;opacity:.9;}
+  .t-main{font-size:52px;line-height:1.14;letter-spacing:.14em;font-weight:600;
+    text-shadow:0 2px 30px rgba(0,0,0,.8),0 0 1px rgba(255,255,255,.4);}
+  .t-main em{font-style:normal;color:#c7d6e6;}
+  .t-sub{margin-top:16px;font-size:14px;letter-spacing:.22em;color:#b9a37c;}
+  .t-line{width:44px;height:1px;background:linear-gradient(90deg,#b33a45,transparent);margin:22px 0 10px;}
+  .t-desc{font-size:12px;line-height:2;color:#7f8ea1;letter-spacing:.08em;max-width:300px;}
+  .t-actions{margin-top:26px;display:flex;flex-direction:column;gap:10px;}
+  .t-actions .row{display:flex;gap:10px;}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;
+    border:1px solid rgba(150,178,205,.28);background:rgba(10,16,25,.62);
+    color:#d9e2ec;font-family:inherit;font-size:14px;letter-spacing:.18em;
+    padding:12px 16px;border-radius:3px;cursor:pointer;transition:.22s;backdrop-filter:blur(2px);}
+  .btn:hover{border-color:rgba(190,215,240,.55);background:rgba(18,28,42,.8);}
+  .btn:active{transform:scale(.985);}
+  .btn.primary{border-color:rgba(179,58,69,.65);background:linear-gradient(180deg,rgba(74,22,28,.72),rgba(30,12,16,.6));color:#efd9d9;}
+  .btn.primary:hover{border-color:rgba(214,96,106,.9);box-shadow:0 0 22px rgba(179,58,69,.25);}
+  .btn.ghost{flex:1;}
+  .btn.small{padding:9px 12px;font-size:12px;letter-spacing:.12em;}
+  .t-foot{margin-top:20px;font-size:10px;letter-spacing:.28em;color:#5d6b7d;display:flex;justify-content:space-between;}
+
+  /* ---------- 取名 ---------- */
+  #screen-name{justify-content:center;align-items:center;padding:28px;
+    background:linear-gradient(180deg,rgba(4,7,12,.55),rgba(4,7,12,.9));}
+  .name-card{width:100%;max-width:330px;text-align:center;}
+  .name-tag{font-size:11px;letter-spacing:.5em;color:#8ea6bd;margin-bottom:22px;}
+  .name-title{font-size:28px;letter-spacing:.2em;margin-bottom:16px;}
+  .name-desc{font-size:12.5px;line-height:2;color:#8b9bad;letter-spacing:.05em;margin-bottom:24px;}
+  #nameInput{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(150,180,210,.35);
+    color:#eef3f8;font-family:inherit;font-size:26px;letter-spacing:.14em;text-align:center;
+    padding:10px 4px;outline:none;border-radius:0;}
+  #nameInput::placeholder{color:#465262;font-size:24px;letter-spacing:.2em;}
+  #nameInput:focus{border-bottom-color:rgba(179,58,69,.8);}
+  .name-hint{margin-top:12px;font-size:10.5px;letter-spacing:.16em;color:#5f6e80;}
+  .name-actions{margin-top:28px;display:flex;flex-direction:column;gap:10px;}
+
+  /* ---------- 游戏 ---------- */
+  #screen-game{background:transparent;}
+  header#top{position:relative;z-index:6;padding:calc(10px + env(safe-area-inset-top)) 14px 8px;
+    background:linear-gradient(180deg,rgba(4,7,12,.92),rgba(4,7,12,.35));}
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .top-title{font-size:13px;letter-spacing:.3em;color:#c3d2e2;display:flex;align-items:center;gap:8px;}
+  .top-title i{display:block;width:3px;height:14px;background:#b33a45;border-radius:1px;}
+  .icon-btn{width:34px;height:34px;border:1px solid rgba(150,178,205,.22);background:rgba(10,16,25,.5);
+    color:#aebdcd;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;}
+  .icon-btn:active{transform:scale(.95);}
+  .hud{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap;}
+  .pill{font-size:10px;letter-spacing:.08em;color:#7f90a4;background:rgba(12,19,29,.62);
+    border:1px solid rgba(130,160,190,.14);padding:4px 8px;border-radius:2px;display:flex;gap:5px;align-items:center;}
+  .pill b{color:#c9a86a;font-weight:500;font-size:11px;font-family:inherit;}
+  .pill.red b{color:#d47a81;}
+  .pill.blue b{color:#93b6d4;}
+  .pill.tap{cursor:pointer;}
+  #stage{position:relative;z-index:4;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;}
+  #portrait{position:absolute;right:-5%;bottom:16%;height:66%;width:72%;z-index:1;pointer-events:none;
+    opacity:0;transition:opacity .45s ease,transform .55s ease;transform:translateY(10px);
+    -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 4%,#000 58%,rgba(0,0,0,.55) 80%,transparent 100%),
+      linear-gradient(90deg,transparent 0%,#000 20%,#000 100%);
+    -webkit-mask-composite:source-in;
+    mask-image:linear-gradient(180deg,transparent 0%,#000 4%,#000 58%,rgba(0,0,0,.55) 80%,transparent 100%),
+      linear-gradient(90deg,transparent 0%,#000 20%,#000 100%);
+    mask-composite:intersect;}
+  #portrait.on{opacity:1;transform:none;}
+  #portrait img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;
+    filter:drop-shadow(0 6px 24px rgba(0,0,0,.65));}
+  #portrait .ph{position:absolute;inset:auto 12% 0 12%;height:86%;display:none;
+    background:radial-gradient(ellipse at 50% 18%,rgba(120,150,180,.22),rgba(80,105,130,.06) 62%,transparent 72%);
+    border-radius:46% 46% 8% 8%;filter:blur(2px);}
+  #portrait.noimg img{display:none;}
+  #portrait.noimg .ph{display:block;}
+  #dialog{position:relative;z-index:5;margin-top:auto;padding:16px 22px calc(18px + env(safe-area-inset-bottom));
+    min-height:112px;background:linear-gradient(180deg,rgba(5,8,13,.12) 0%,rgba(5,8,13,.86) 26%,rgba(5,8,13,.97) 100%);
+    border-top:1px solid rgba(140,170,200,.12);cursor:pointer;user-select:none;}
+  #speaker{font-size:12px;letter-spacing:.28em;color:#c9a86a;height:18px;margin-bottom:9px;}
+  #speaker.her{color:#8fb4d3;}
+  #speaker.none{visibility:hidden;}
+  #dtext{font-size:15.5px;line-height:2.05;letter-spacing:.03em;color:#e2e9f1;
+    text-shadow:0 1px 8px rgba(0,0,0,.7);}
+  #dtext .quote{color:#d9c39a;}
+  #next{position:absolute;right:20px;bottom:calc(12px + env(safe-area-inset-bottom));font-size:11px;color:#6f8296;
+    opacity:0;transition:opacity .25s;}
+  #next.on{opacity:1;animation:bob 1.4s infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+  #choices{position:relative;z-index:7;padding:0 18px calc(16px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(5,8,13,0),rgba(5,8,13,.92) 18%);display:none;
+    max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  #choices.on{display:block;animation:fadeIn .35s ease both;}
+  .cprompt{font-size:11px;letter-spacing:.1em;color:#8fa2b6;padding:5px 2px 1px;line-height:1.7;}
+  .choice{display:block;width:100%;text-align:left;margin-top:9px;padding:12px 14px;
+    border:1px solid rgba(150,178,205,.24);background:rgba(11,17,27,.9);color:#dbe4ee;
+    font-family:inherit;font-size:14px;line-height:1.65;letter-spacing:.02em;border-radius:3px;cursor:pointer;
+    transition:.18s;}
+  .choice:hover{border-color:rgba(200,220,240,.55);background:rgba(20,30,44,.95);}
+  .choice:active{transform:scale(.99);}
+  .choice.locked{opacity:.42;cursor:not-allowed;}
+  .choice .lk{display:block;margin-top:4px;font-size:10.5px;letter-spacing:.06em;color:#a07076;}
+  .choice .k{color:#c9a86a;font-size:11px;letter-spacing:.1em;margin-left:6px;}
+
+  /* ---------- 地图 ---------- */
+  #mapLayer{position:absolute;inset:0;z-index:8;display:none;flex-direction:column;
+    background:linear-gradient(180deg,rgba(4,7,12,.96),rgba(4,7,12,.995));backdrop-filter:blur(6px);}
+  #mapLayer.on{display:flex;animation:fadeIn .4s ease both;}
+  .map-head{padding:calc(14px + env(safe-area-inset-top)) 20px 10px;}
+  .map-kicker{font-size:10px;letter-spacing:.42em;color:#7d8fa3;margin-bottom:8px;}
+  .map-title{font-size:20px;letter-spacing:.16em;color:#e3eaf3;}
+  .map-sub{margin-top:7px;font-size:11.5px;letter-spacing:.06em;color:#8798ab;line-height:1.8;}
+  .map-scroll{flex:1;min-height:0;overflow-y:auto;padding:4px 16px calc(20px + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling:touch;}
+  .loc-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px;}
+  .loc{position:relative;border:1px solid rgba(140,170,200,.18);background:#0b1119;border-radius:3px;
+    overflow:hidden;cursor:pointer;transition:.2s;}
+  .loc:active{transform:scale(.985);}
+  .loc-thumb{height:172px;background-size:cover;background-position:center;
+    background-image:linear-gradient(160deg,#16212e,#0a1017);position:relative;}
+  .loc-thumb::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(4,7,12,.05),rgba(4,7,12,.7));}
+  .loc-name{position:absolute;left:13px;bottom:11px;z-index:2;font-size:16px;letter-spacing:.1em;color:#e2eaf3;
+    text-shadow:0 1px 8px #000;}
+  .loc-meta{padding:10px 13px 11px;font-size:11px;color:#7d8fa3;letter-spacing:.04em;display:flex;
+    justify-content:space-between;align-items:center;line-height:1.4;}
+  .loc.done{opacity:.4;}
+  .loc.done .loc-name::after{content:" · 已走过";color:#8896a6;font-size:10px;}
+  .loc .dot{color:#b33a45;font-size:9px;}
+  .map-foot{padding:10px 16px calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;}
+  .map-foot .btn{flex:1;font-size:12px;padding:10px;letter-spacing:.1em;}
+
+  /* ---------- 结局 ---------- */
+  #screen-ending{overflow-y:auto;-webkit-overflow-scrolling:touch;background:#04060a;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom));}
+  .end-visual{position:relative;height:44vh;min-height:280px;flex-shrink:0;
+    background-size:cover;background-position:center;
+    background-image:linear-gradient(160deg,#0d1722,#05080d);}
+  .end-visual::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(4,6,10,.15),rgba(4,6,10,.55) 62%,#04060a 100%);}
+  .end-badge{position:absolute;left:22px;bottom:18px;z-index:2;font-size:10px;letter-spacing:.36em;
+    color:#c9a86a;border:1px solid rgba(201,168,106,.4);padding:4px 9px;border-radius:2px;}
+  .end-body{padding:22px 24px 0;}
+  .end-no{font-size:11px;letter-spacing:.3em;color:#6d7e91;margin-bottom:10px;}
+  .end-title{font-size:25px;letter-spacing:.12em;line-height:1.45;color:#f0f4f9;}
+  .end-type{margin-top:10px;font-size:10.5px;letter-spacing:.3em;color:#b08a8a;}
+  .end-text{margin-top:20px;font-size:14px;line-height:2.15;color:#b9c6d5;letter-spacing:.03em;white-space:pre-wrap;}
+  .end-stats{margin-top:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .end-stats div{border:1px solid rgba(140,170,200,.14);background:rgba(10,16,25,.7);padding:9px 6px;
+    text-align:center;border-radius:2px;}
+  .end-stats span{display:block;font-size:9px;letter-spacing:.12em;color:#76889c;margin-bottom:5px;}
+  .end-stats b{font-size:15px;font-weight:500;color:#d8c39c;}
+  .end-actions{margin-top:24px;display:flex;gap:10px;}
+  .end-actions .btn{flex:1;font-size:12px;padding:11px 8px;letter-spacing:.1em;}
+
+  /* ---------- 图鉴 ---------- */
+  #screen-gallery{background:#05070b;}
+  .gal-head{padding:calc(18px + env(safe-area-inset-top)) 22px 12px;display:flex;align-items:center;gap:12px;}
+  .gal-head .btn{padding:7px 10px;font-size:12px;letter-spacing:.06em;}
+  .gal-title{font-size:18px;letter-spacing:.2em;}
+  .gal-scroll{flex:1;min-height:0;overflow-y:auto;padding:0 18px calc(24px + env(safe-area-inset-bottom));}
+  .gal-intro{font-size:11px;line-height:1.9;color:#7b8c9f;letter-spacing:.06em;margin-bottom:14px;}
+  .gal-item{display:flex;align-items:center;gap:12px;border:1px solid rgba(140,170,200,.15);
+    background:rgba(10,16,25,.6);padding:13px 14px;margin-bottom:9px;border-radius:3px;cursor:pointer;}
+  .gal-item.lock{opacity:.55;cursor:default;}
+  .gal-item .no{font-size:11px;color:#6f8195;letter-spacing:.1em;width:26px;}
+  .gal-item .nm{flex:1;font-size:14px;letter-spacing:.08em;color:#dbe4ee;}
+  .gal-item .ty{font-size:9px;letter-spacing:.14em;color:#a68181;}
+  .gal-item.lock .nm{color:#6a7889;letter-spacing:.2em;}
+
+  /* ---------- 弹层 ---------- */
+  #modal{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
+    background:rgba(2,4,7,.72);backdrop-filter:blur(4px);padding:24px;}
+  #modal.on{display:flex;animation:fadeOnly .25s ease both;}
+  .modal-card{width:100%;max-width:340px;max-height:78%;overflow-y:auto;background:linear-gradient(180deg,#0c131d,#070b11);
+    border:1px solid rgba(160,185,210,.22);border-radius:4px;padding:22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.7);}
+  .modal-card h3{margin:0 0 14px;font-size:15px;letter-spacing:.18em;font-weight:500;color:#e2eaf3;}
+  .modal-card p{font-size:12px;line-height:2;color:#93a3b5;letter-spacing:.02em;margin:0 0 10px;}
+  .modal-card .btn{width:100%;margin-top:8px;font-size:13px;padding:11px;}
+  .modal-card .hr{height:1px;background:rgba(140,170,200,.12);margin:16px 0;}
+
+  /* ---------- 过场 ---------- */
+  #chapter{position:absolute;inset:0;z-index:26;display:none;flex-direction:column;align-items:center;
+    justify-content:center;background:rgba(3,5,9,.94);cursor:pointer;padding:30px;text-align:center;}
+  #chapter.on{display:flex;animation:fadeOnly .5s ease both;}
+  #chapter .num{font-size:76px;color:rgba(180,200,220,.14);letter-spacing:.1em;line-height:1;
+    font-weight:600;margin-bottom:6px;}
+  #chapter .ct{font-size:19px;letter-spacing:.22em;color:#dbe4ee;}
+  #chapter .cs{margin-top:16px;font-size:11px;letter-spacing:.22em;color:#b9a37c;}
+  #chapter .cl{margin-top:34px;font-size:10px;letter-spacing:.3em;color:#526174;animation:bob 2s infinite;}
+  #rewind{position:absolute;inset:0;z-index:25;display:none;align-items:center;justify-content:center;
+    background:rgba(210,230,245,.05);}
+  #rewind.on{display:flex;animation:rw 1.9s ease both;}
+  #rewind .rwtext{font-size:13px;letter-spacing:.5em;color:#cfe0ee;text-shadow:0 0 22px rgba(160,200,230,.8);}
+  @keyframes rw{0%{opacity:0;background:rgba(210,230,245,.32)}18%{opacity:1;background:rgba(210,230,245,.08)}
+    82%{opacity:1;background:rgba(210,230,245,.08)}100%{opacity:0;background:rgba(210,230,245,0)}}
+  #fade{position:absolute;inset:0;z-index:24;background:#04060a;pointer-events:none;opacity:1;
+    transition:opacity .55s ease;}
+  #toast{position:absolute;left:50%;bottom:calc(28% + env(safe-area-inset-bottom));transform:translateX(-50%);
+    z-index:30;background:rgba(12,20,30,.95);border:1px solid rgba(201,168,106,.35);color:#e6d6b4;
+    font-size:12px;letter-spacing:.1em;padding:9px 14px;border-radius:2px;opacity:0;pointer-events:none;
+    transition:opacity .3s,transform .3s;white-space:nowrap;max-width:90%;}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(-6px);}
+  .frag-list{display:grid;gap:8px;}
+  .frag-item{border:1px solid rgba(140,170,200,.15);background:rgba(12,18,28,.7);padding:10px 12px;border-radius:2px;}
+  .frag-item b{font-size:12.5px;letter-spacing:.08em;color:#d8c39c;font-weight:500;}
+  .frag-item span{display:block;margin-top:5px;font-size:11px;line-height:1.7;color:#8395a8;}
+  .frag-item.miss b{color:#5f6f80;letter-spacing:.14em;}
+  /* ---------- 剧情回忆 / 存档 ---------- */
+  .log-list{max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    margin:2px 0 10px;padding:2px 2px 4px;border-top:1px solid rgba(140,170,200,.12);
+    border-bottom:1px solid rgba(140,170,200,.12);}
+  .log-item{padding:8px 2px;border-bottom:1px dashed rgba(140,170,200,.08);}
+  .log-item:last-child{border-bottom:none;}
+  .log-item .lw{font-size:10.5px;letter-spacing:.18em;color:#c9a86a;margin-bottom:3px;}
+  .log-item .lw.her{color:#8fb4d3;}
+  .log-item .lt{font-size:12.5px;line-height:1.85;color:#c6d2df;white-space:pre-wrap;}
+  .log-item.choice .lt{color:#c9a86a;}
+  .log-item.sys .lt{color:#93a3b5;font-size:11.5px;}
+  .log-item.sep{text-align:center;padding:13px 0 9px;}
+  .log-item.sep .lt{font-size:10.5px;letter-spacing:.24em;color:#7d8fa3;}
+  .data-actions{display:flex;gap:8px;}
+  .data-actions .btn{flex:1;margin-top:0;padding:10px 6px;font-size:12px;letter-spacing:.08em;}
+  @media(max-height:640px){
+    #dialog{padding-top:14px;min-height:104px;}
+    #dtext{font-size:14.5px;line-height:1.95;}
+    #portrait{height:58%;}
+    .t-main{font-size:44px;}
+    .end-visual{height:38vh;min-height:230px;}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important;}}
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="stageBg"></div>
+  <canvas id="rain"></canvas>
+  <div id="vignette"></div>
+
+  <!-- 标题 -->
+  <section id="screen-title" class="screen on">
+    <div class="t-eyebrow">TIME · REDEMPTION</div>
+    <div class="t-main">时空<em>救赎</em></div>
+    <div class="t-sub">下一次，我一定好好爱你</div>
+    <div class="t-line"></div>
+    <div class="t-desc">五次日落，一场不会停的雨。<br>她一次次回到过去救他，他一次次重生在她死后的三分钟里。</div>
+    <div class="t-actions">
+      <button class="btn primary" id="btnStart">开 始 回 溯</button>
+      <div class="row">
+        <button class="btn ghost" id="btnContinue">继 续</button>
+        <button class="btn ghost" id="btnGallery">结 局 图 鉴</button>
+      </div>
+      <button class="btn ghost" id="btnData">存 档 导 入 / 导 出</button>
+    </div>
+    <div class="t-foot"><span>一对一 · 救赎向</span><span id="titleProgress">结局 0 / 8</span></div>
+  </section>
+
+  <!-- 取名 -->
+  <section id="screen-name" class="screen">
+    <div class="name-card">
+      <div class="name-tag">NAME · 落 名</div>
+      <div class="name-title">这一次，写下你的名字</div>
+      <div class="name-desc">雨会倒着下，时间会重来，<br>但他只会记住一个名字。<br>——随便写，写错了也能改。</div>
+      <input id="nameInput" maxlength="12" autocomplete="off" spellcheck="false" placeholder="柚乞怜">
+      <div class="name-hint">1-12 字，纯自由取名</div>
+      <div class="name-actions">
+        <button class="btn primary" id="btnNameGo">写 下 · 回 到 那 个 雨 夜</button>
+        <button class="btn" id="btnNameBack">再 想 想</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 游戏 -->
+  <section id="screen-game" class="screen">
+    <header id="top">
+      <div class="top-row">
+        <div class="top-title"><i></i><span id="hudLoop">第一次回溯</span></div>
+        <div style="display:flex;gap:7px;">
+          <button class="icon-btn" id="btnLog" title="剧情回忆" style="font-size:12px;letter-spacing:.02em;">忆</button>
+          <button class="icon-btn" id="btnSound" title="雨声">♪</button>
+          <button class="icon-btn" id="btnMenu" title="菜单">≡</button>
+        </div>
+      </div>
+      <div class="hud">
+        <div class="pill">时间 <b id="hudTime">17:40</b></div>
+        <div class="pill blue">救赎 <b id="hudRedeem">0</b></div>
+        <div class="pill red">误解 <b id="hudMis">0</b></div>
+        <div class="pill">他的记忆 <b id="hudMem">0</b></div>
+        <div class="pill tap" id="pillFrag">碎片 <b id="hudFrag">0/7</b></div>
+      </div>
+    </header>
+    <div id="stage">
+      <div id="portrait"><div class="ph"></div><img id="portraitImg" alt=""></div>
+      <div id="dialog">
+        <div id="speaker"></div>
+        <div id="dtext"></div>
+        <div id="next">▼</div>
+      </div>
+      <div id="choices"></div>
+    </div>
+    <div id="mapLayer">
+      <div class="map-head">
+        <div class="map-kicker" id="mapKicker">THE SAME RAIN</div>
+        <div class="map-title" id="mapTitle">这一夜，去哪里</div>
+        <div class="map-sub" id="mapSub">还剩 4 个时段。</div>
+      </div>
+      <div class="map-scroll">
+        <div class="loc-grid" id="locGrid"></div>
+      </div>
+      <div class="map-foot">
+        <button class="btn small" id="btnEarly">提前走进雨里</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 结局 -->
+  <section id="screen-ending" class="screen">
+    <div class="end-visual" id="endVisual">
+      <div class="end-badge" id="endBadge">TRUE END</div>
+    </div>
+    <div class="end-body">
+      <div class="end-no" id="endNo">ENDING 01</div>
+      <div class="end-title" id="endTitle"></div>
+      <div class="end-type" id="endType"></div>
+      <div class="end-text" id="endText"></div>
+      <div class="end-stats">
+        <div><span>救赎</span><b id="endRedeem">0</b></div>
+        <div><span>误解</span><b id="endMis">0</b></div>
+        <div><span>他的记忆</span><b id="endMem">0</b></div>
+        <div><span>碎片</span><b id="endFrag">0</b></div>
+      </div>
+      <div class="end-actions">
+        <button class="btn" id="btnEndGallery">结 局 图 鉴</button>
+        <button class="btn" id="btnEndLog">回 忆</button>
+        <button class="btn primary" id="btnAgain">再 入 一 场</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 图鉴 -->
+  <section id="screen-gallery" class="screen">
+    <div class="gal-head">
+      <button class="btn" id="btnGalBack">返回</button>
+      <div class="gal-title">结局图鉴</div>
+    </div>
+    <div class="gal-scroll">
+      <div class="gal-intro" id="galIntro"></div>
+      <div id="galList"></div>
+    </div>
+  </section>
+
+  <div id="modal"><div class="modal-card" id="modalCard"></div></div>
+  <div id="chapter">
+    <div class="num" id="chNum">一</div>
+    <div class="ct" id="chTitle"></div>
+    <div class="cs" id="chSub"></div>
+    <div class="cl">点 击 继 续</div>
+  </div>
+  <div id="rewind"><div class="rwtext">雨，倒着落回天上</div></div>
+  <div id="fade"></div>
+  <div id="toast"></div>
+</div>
+
+<script>window.IMG={"bg_alley":"images/bg_alley.jpg","bg_blood":"images/bg_blood.jpg","bg_dawn":"images/bg_dawn.jpg","bg_hospital":"images/bg_hospital.jpg","bg_oldbuilding":"images/bg_oldbuilding.jpg","bg_police":"images/bg_police.jpg","bg_rooftop":"images/bg_rooftop.jpg","bg_stairwell":"images/bg_stairwell.jpg","bg_store":"images/bg_store.jpg","bg_title":"images/bg_title.jpg","boy_blood":"images/boy_blood.jpg","boy_bruised":"images/boy_bruised.jpg","boy_normal":"images/boy_normal.jpg","boy_rain":"images/boy_rain.jpg","girl_blood":"images/girl_blood.jpg","girl_normal":"images/girl_normal.jpg"};</script>
+<script>
+'use strict';
+/* =======================================================
+   时空救赎 · 单文件互动叙事
+   ======================================================= */
+const SAVE_KEY = 'skjh_save_v1';
+const GAL_KEY  = 'skjh_endings_v1';
+const NAME_KEY = 'skjh_last_name_v1';
+const LOG_KEY  = 'skjh_log_v1';
+const LOOP_TOTAL = 5;
+const SEG_TOTAL = 4;
+const SEG_TIME = ['17:40', '21:10', '01:00', '05:10'];
+
+const $ = s => document.querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lastName = ()=>{ try{ return localStorage.getItem(NAME_KEY) || '柚乞怜'; }catch(e){ return '柚乞怜'; } };
+const fmt = t => String(t == null ? '' : t).replace(/\{name\}/g, state ? state.name : lastName());
+
+/* ---------- 地点 / 碎片 ---------- */
+const LOCS = {
+  alley:   {name:'长明巷', sub:'雨夜的巷口', img:'bg_alley'},
+  old:     {name:'萧家旧楼', sub:'三楼，灯总亮着', img:'bg_oldbuilding'},
+  police:  {name:'城南派出所', sub:'值班室的日光灯', img:'bg_police'},
+  store:   {name:'二十四小时便利店', sub:'凌晨的热牛奶', img:'bg_store'},
+  roof:    {name:'旧校舍天台', sub:'城市在脚下淋雨', img:'bg_rooftop'},
+  hospital:{name:'市三院', sub:'走廊尽头的长椅', img:'bg_hospital'}
+};
+const LOC_ORDER = ['alley','old','store','police','roof','hospital'];
+
+const FRAGS = {
+  cup:   {name:'摔碎的搪瓷杯', desc:'杯底刻着一个很小的「礼」字。是他小时候自己刻的。'},
+  msg:   {name:'未发出的短信', desc:'「对不起。下次，我一定好好爱你。」一直躺在草稿箱里。'},
+  record:{name:'三次报警笔录', desc:'三次家暴报警，三次「调解结案」。'},
+  milk:  {name:'一杯热牛奶', desc:'他说是过期的，不卖。可杯子是温的。'},
+  smoke: {name:'天台的半支烟', desc:'他抽了一半，剩下的被雨打灭了。'},
+  bill:  {name:'一张缴费单', desc:'缴费人签名那一栏，是他的名字，字迹很用力。'},
+  tape:  {name:'一段旧录音', desc:'「第五次了……我还是没赶上。」'}
+};
+
+/* ---------- 剧情数据（由下方片段填充） ---------- */
+const EVENTS = {};
+const LOOP_INTRO = {};
+const DEATHS = {};
+let FINAL = {};
+const ENDINGS = {};
+const ENDING_ORDER = ['true','beforeRain','fifth','unheard','herName','letGo','nextRain','lastBack'];
+
+/* ============ 第一次回溯 · 她以为只要报警 ============ */
+const addEv = (loc, obj) => { EVENTS[loc] = Object.assign(EVENTS[loc] || {}, obj); };
+
+addEv('alley', { 1: {
+  bg: 'bg_alley', p: 'boy',
+  lines: [
+    {who:'', t:'长明巷离便利店只有一百二十步。六盏路灯坏了三盏，剩下的那盏被雨泡成一团发白的光。'},
+    {who:'', t:'你站在卷帘门下，看见巷子深处蹲着一个男人。他手里有一把折叠刀，正一下一下地开合。'},
+    {who:'', t:'手机在口袋里震了一下。天气预报：今日有雨，凌晨转大。'},
+    {who:'', t:'上一世，就是在这里。你被他一刀捅穿，手机还连着报警电话。接线员一直在问——女士，你还好吗？'},
+    {who:'你', t:'……这次，我不能死在这里。至少，不能死在他面前。', p:'girl'},
+    {who:'', t:'你听见自己的心跳。雨声很大，可你还是很清楚地听见，那个男人站起来了。'}
+  ],
+  choice: {
+    prompt: '他朝巷口走了两步。你只有几秒钟。',
+    options: [
+      {t:'退进便利店，隔着玻璃拨110，把他的位置说清楚。', eff:{redeem:6, mis:1, flag:'callPolice'},
+       res:[{who:'', t:'你压低声音报出巷口的路牌。接线员说，巡逻车六分钟到。你听见自己的声音在抖，但每个字都说清楚了。'}]},
+      {t:'举起手机，悄悄拍下他的脸。', eff:{redeem:5, mis:2, flag:'photo'},
+       res:[{who:'', t:'闪光灯忘了关。白光一亮，男人猛地回头。你转身就跑，鞋底在积水里打滑，心跳几乎要从喉咙里掉出来。'}]},
+      {t:'走过去，问他是不是在等人。', eff:{redeem:1, mis:10},
+       res:[{who:'', t:'他盯着你看了三秒，忽然笑了。「妹妹，雨这么大，早点回家。」刀在他袖口里，露出一线冷光。'}]}
+    ]
+  }
+}});
+
+addEv('old', { 1: {
+  bg: 'bg_oldbuilding', p: 'boy_bruised',
+  lines: [
+    {who:'', t:'萧家旧楼在长明巷尽头。三楼那扇窗亮着，像一块被烟熏黄的旧布。'},
+    {who:'', t:'你站在雨里，听见玻璃碎掉的声音。然后是男人的骂声，和什么东西撞在墙上的闷响。'},
+    {who:'', t:'你仰起头，看见一个少年跪在窗边。他没有躲，也没有哭，只是把手臂抬起来，挡了一下。'},
+    {who:'', t:'上一世，你在这栋楼下拨了110。电话接通的那一刻，抢劫犯从巷口走过来。'},
+    {who:'你', t:'我记得的。三楼，左手第二扇窗。这一次，我要说得更快一点。', p:'girl'},
+    {who:'', t:'雨顺着你的下巴往下淌。楼道里的声控灯一层层亮起来，又一层层灭掉。'}
+  ],
+  choice: {
+    prompt: '楼上的声音停了。他在等下一句。',
+    options: [
+      {t:'先报警，把门牌号、楼层、施暴者名字一次说清楚。', eff:{redeem:7, mis:1, flag:'reported'},
+       res:[{who:'', t:'接线员问你和当事人是什么关系。你顿了一下，说：一个不能看着他死的人。对方沉默两秒，说，民警马上到。'}]},
+      {t:'上楼，敲开那扇门，把手机录音打开。', eff:{redeem:5, mis:5, frag:'cup', flag:'sawRoom'},
+       res:[{who:'', t:'门开了一条缝。酒气、血腥味，还有一只摔碎的搪瓷杯。杯底刻着一个很小的「礼」字。男人堵在门口：「你谁啊？」'}]},
+      {t:'站在雨里，等他父亲打累了再说。', eff:{redeem:1, mis:4},
+       res:[{who:'', t:'声音终于停了。灯还亮着。你在雨里站到手指发白，才想起来，自己也会冷。'}]}
+    ]
+  }
+}});
+
+addEv('store', { 1: {
+  bg: 'bg_store', p: 'boy',
+  lines: [
+    {who:'', t:'凌晨一点，便利店的门铃响了一声。'},
+    {who:'', t:'他站在收银台后面，右手缠着纱布，正给关东煮加水。蒸汽把他的睫毛打湿了一点点。'},
+    {who:'', t:'他抬眼看你，又很快低下去：「欢迎光临。」像不认识你。'},
+    {who:'', t:'上一世，你死前最后一条短信，就是在这张靠窗的小桌子上编辑的。写了删，删了写，最后只剩三个字：对不起。'},
+    {who:'你', t:'这一次，我想把后半句也写完。', p:'girl'}
+  ],
+  choice: {
+    prompt: '热饮柜在响。他背对着你，肩膀很瘦。',
+    options: [
+      {t:'买一瓶水，坐到窗边，把那句话重新写进草稿箱。', eff:{redeem:6, mis:1, frag:'msg'},
+       res:[{who:'', t:'「对不起。下次，我一定好好爱你。」你盯着这行字看了很久，还是没按发送。你怕现在的他，只会觉得你有病。'}]},
+      {t:'直接告诉他：今晚别回长明巷。', eff:{redeem:4, mis:6, flag:'warned'},
+       res:[{who:'他', t:'他停下手里的活，看了你一会儿：「你谁啊？」', p:'boy'},
+            {who:'', t:'你张了张嘴。你总不能说，我是上一世死在你怀里的人。'}]},
+      {t:'买完就走，把伞留在门口的伞架上。', eff:{redeem:5, mis:2, flag:'umbrella'},
+       res:[{who:'', t:'门铃又响了一声。你走进雨里，听见身后有人喊了一句什么，被雨吞掉了。'}]}
+    ]
+  }
+}});
+
+addEv('police', { 1: {
+  bg: 'bg_police',
+  lines: [
+    {who:'', t:'派出所的值班室只有一盏日光灯亮着。陈警官把你说的话记了两行，笔停住了。'},
+    {who:'陈警官', t:'「家暴？有伤情照片吗？有报警回执吗？」'},
+    {who:'', t:'你说有三次报警记录。她翻了翻电脑，眉头慢慢皱起来：「三次，都是调解结案。」'},
+    {who:'', t:'「施暴人叫萧国栋，对吧？他儿子叫什么？」'},
+    {who:'你', t:'萧翊礼。翊是立羽翊，礼是礼貌的礼。', p:'girl'},
+    {who:'', t:'你说得很慢，像怕把这三个字弄丢。'}
+  ],
+  choice: {
+    prompt: '陈警官把键盘往前推了推。',
+    options: [
+      {t:'要求调出三次笔录，逐页拍照。', eff:{redeem:6, mis:0, frag:'record', flag:'gotRecord'},
+       res:[{who:'', t:'第一页写着「家庭纠纷，调解」；第二页也是；第三页的空白处，有人用铅笔写了一行小字：孩子不肯做伤情鉴定。'}]},
+      {t:'要求今晚必须出警，去萧家旧楼。', eff:{redeem:5, mis:2, flag:'patrol1'},
+       res:[{who:'', t:'陈警官看了你一眼，拿起对讲机。「三组，长明巷萧家旧楼，家暴警情，去看一下。」她放下对讲机，又补了一句：你也早点回去。'}]},
+      {t:'说「那等出人命你们再管吧」，起身离开。', eff:{redeem:1, mis:6},
+       res:[{who:'', t:'你推开门，雨声一下子涌进来。身后陈警官叫了你一声，你没有回头。'}]}
+    ]
+  }
+}});
+
+addEv('hospital', { 1: {
+  bg: 'bg_hospital',
+  lines: [
+    {who:'', t:'市三院急诊。你挂了号，护士量完体温，抬头看你：「三十八度二。淋了多久？」'},
+    {who:'', t:'你说记不清。她叹了口气，让你去里面等。'},
+    {who:'', t:'走廊尽头的长椅上，坐着一个抱着旧棉袄的女人。她一直看着门口，像在等一个不会来的人。'},
+    {who:'', t:'墙上的电子钟跳到 21:47。雨敲在玻璃上，像有人在很轻地敲门。'},
+    {who:'你', t:'上一世我没来过这里。原来医院的味道，和他身上的消毒水味是一样的。', p:'girl'}
+  ],
+  choice: {
+    prompt: '护士叫了你的号，你却没动。',
+    options: [
+      {t:'走过去，问那个女人在等谁。', eff:{redeem:4, mis:2, flag:'nurse'},
+       res:[{who:'', t:'她说在等儿子。儿子在便利店上夜班，说下了班就来。「他爸又打他了，他不肯说。」她笑了一下，「这孩子，从小就只会忍。」'}]},
+      {t:'拿药离开，赶去长明巷。', eff:{redeem:2, mis:1},
+       res:[{who:'', t:'你把药塞进包里，走进雨里。药盒上的说明写着：一次一粒，一日三次。你忽然想，爱是不是也有剂量。'}]},
+      {t:'留下来，陪她等到雨小一点。', eff:{redeem:6, mis:0, flag:'waited'},
+       res:[{who:'', t:'你没有说话，只是在她旁边坐下。她把手里的旧棉袄分了一半给你盖腿。医院的灯很白，白得让人想哭。'}]}
+    ]
+  }
+}});
+
+addEv('roof', { 1: {
+  bg: 'bg_rooftop', p: 'boy_rain',
+  lines: [
+    {who:'', t:'旧校舍的天台没有锁。铁门被雨锈住，推开时发出很长的一声响。'},
+    {who:'', t:'他坐在栏杆外侧，两条腿悬在城市上方。烟在雨里点不着，他就一遍遍按打火机。'},
+    {who:'', t:'你站在离他五步远的地方。'},
+    {who:'', t:'上一世，你到死都不知道他来过这里。你只知道他总穿长袖，总低着头，总说「没事」。'},
+    {who:'你', t:'原来「没事」两个字，是他站在这里学会的。', p:'girl'}
+  ],
+  choice: {
+    prompt: '打火机又灭了。他听见了你的脚步声。',
+    options: [
+      {t:'不说话，走过去，隔着栏杆坐下。', eff:{redeem:8, mis:1, flag:'satWithHim'},
+       res:[{who:'他', t:'「……你不怕我推你下去？」', p:'boy_rain'},
+            {who:'', t:'「怕。」你说，「但我更怕你一个人在这儿。」'},
+            {who:'', t:'他把打火机收进兜里。雨落在两个人中间，谁也没再说话。'}]},
+      {t:'大喊「你别动！」', eff:{redeem:2, mis:7},
+       res:[{who:'', t:'他猛地回头，眼睛里有一瞬间的惊慌，接着变成一种很熟悉的、被冒犯的冷。「你谁啊。」他从栏杆外侧翻回来，走了。'}]},
+      {t:'悄悄退下去，报警。', eff:{redeem:3, mis:3},
+       res:[{who:'', t:'你退到楼梯间拨了110。等警察上来时，天台已经空了，只剩一地按不着的烟。'}]}
+    ]
+  }
+}});
+
+/*__L1__*/
+/* ============ 第二次回溯 · 她以为只要靠近 ============ */
+addEv('alley', { 2: {
+  bg: 'bg_alley',
+  lines: [
+    {who:'', t:'第二次醒来，你没有先去报警。你先去了长明巷。'},
+    {who:'', t:'巷口第三盏路灯的灯罩碎了，电线裸在外面。雨一淋，整条巷子就黑得像一张没写字的纸。'},
+    {who:'', t:'你踩着垃圾桶把灯罩拧下来。手指被铁皮划开一道口子，血混着雨水，滴在墙根。'},
+    {who:'', t:'墙根有一副被丢下的线手套。掌心磨破了，沾着机油。'},
+    {who:'你', t:'他每天从这里走回家。他一直在这么黑的地方走。', p:'girl'}
+  ],
+  choice: {
+    prompt: '你把灯泡拧上去，巷子亮了一小块。',
+    options: [
+      {t:'把整条巷子的坏灯都修一遍。', eff:{redeem:6, mis:0, flag:'fixedLight'},
+       res:[{who:'', t:'你从便利店借了梯子。灯一盏盏亮起来，雨丝在光里变成了金色的线。你站在光里，忽然觉得这一夜没那么长了。'}]},
+      {t:'守在巷口，等那个抢劫犯出现。', eff:{redeem:2, mis:6, flag:'stakeout'},
+       res:[{who:'', t:'你等到凌晨两点。一个醉汉从巷子里晃出来，看见你，吹了声口哨。你握紧口袋里的钥匙，退到便利店门口。'}]},
+      {t:'拍下坏灯和手套，去派出所备案。', eff:{redeem:5, mis:1, flag:'lightReport'},
+       res:[{who:'', t:'陈警官看了一眼照片，说会联系市政。你把照片也发给了自己，备注写了四个字：他回家的路。'}]}
+    ]
+  }
+}});
+
+addEv('old', { 2: {
+  bg: 'bg_oldbuilding', p: 'boy_bruised',
+  lines: [
+    {who:'', t:'你带着药和纱布上楼。楼道里堆着旧纸箱，墙皮一块一块地往下掉。'},
+    {who:'', t:'门开了。酒气先出来，然后是他父亲的脸。'},
+    {who:'萧国栋', t:'「你谁啊？找谁？」'},
+    {who:'', t:'他站在父亲身后，看见你，眼神动了一下，随即变成一种很薄、很硬的平静。'},
+    {who:'他', t:'「不认识。」', p:'boy_bruised'},
+    {who:'', t:'门在你面前合上。你听见里面有人说：「哪来的疯丫头。」'}
+  ],
+  choice: {
+    prompt: '门缝里还亮着一点光。',
+    options: [
+      {t:'把药挂在门把手上，隔着门说：他手上的伤会发炎。', eff:{redeem:7, mis:1, flag:'medicineDoor'},
+       res:[{who:'', t:'里面安静了几秒。然后门开了一条缝，药被拿走了，门又关上。你站在楼道里，听见很轻的一声「谢谢」，几乎以为是错觉。'}]},
+      {t:'硬闯进去，把药放在桌上。', eff:{redeem:2, mis:8, flag:'forcedIn'},
+       res:[{who:'', t:'他父亲一把推在你肩上：「私闯民宅是不是？」你撞在鞋柜上，那只摔碎的搪瓷杯掉下来，杯底刻着一个「礼」字。'}]},
+      {t:'下楼报警，让警察上门。', eff:{redeem:6, mis:2, frag:'cup', flag:'calledAgain'},
+       res:[{who:'', t:'警车来的时候，整栋楼的人都趴在窗上看。他站在门口，脸上没有表情，只在看见你时，很轻地摇了一下头。'}]}
+    ]
+  }
+}});
+
+addEv('store', { 2: {
+  bg: 'bg_store', p: 'boy',
+  lines: [
+    {who:'', t:'凌晨三点，便利店只剩关东煮在咕嘟咕嘟地响。'},
+    {who:'', t:'你坐在窗边，湿头发把校服领子洇出一圈深色。他端着两杯热牛奶走过来，把其中一杯放在你面前。'},
+    {who:'他', t:'「过期的，不卖。」', p:'boy'},
+    {who:'', t:'杯壁上有一层薄薄的雾。他手上也有一层，是刚才洗杯子留下的。'},
+    {who:'你', t:'上一世我到死都没喝过这杯牛奶。原来它这么烫。', p:'girl'}
+  ],
+  choice: {
+    prompt: '他没有走，站在桌边，像在等你说点什么。',
+    options: [
+      {t:'接过牛奶，问他手上的伤疼不疼。', eff:{redeem:7, mis:1, frag:'milk', flag:'askedHurt'},
+       res:[{who:'他', t:'「不疼。」他顿了一下，「习惯了。」', p:'boy'},
+            {who:'', t:'你握着杯子，忽然很想告诉他：不疼不是习惯，是没人问。可你只是说：「我手也冷。借我捂一会儿。」'}]},
+      {t:'说：你不该在这种地方上夜班。', eff:{redeem:2, mis:7},
+       res:[{who:'他', t:'他把另一杯牛奶端走了。「嗯。你也不该来。」', p:'boy'},
+            {who:'', t:'收银台的灯照着他的侧脸。你看见他下颌绷得很紧，像在忍住什么。'}]},
+      {t:'起身把临期的饭团一个个下架，替他做完。', eff:{redeem:6, mis:0, flag:'helpedShelf'},
+       res:[{who:'', t:'他没有拦你，只是在你够不到最上层时，伸手替你拿下来。「谢谢。」他说得很轻，这次没有叫你「你谁啊」。'}]}
+    ]
+  }
+}});
+
+addEv('police', { 2: {
+  bg: 'bg_police',
+  lines: [
+    {who:'', t:'陈警官今晚值夜班。她看见你，先愣了一下：「又是你。」'},
+    {who:'', t:'你把长明巷的事说了。她调出记录：上个月一起抢劫，受害人被捅伤，嫌疑人一直没抓到。'},
+    {who:'陈警官', t:'「你确定是同一把折叠刀？」'},
+    {who:'', t:'你点头。你比任何人都确定，因为你死在那把刀下。'},
+    {who:'你', t:'「凌晨五点四十，能不能派一辆车去长明巷？」', p:'girl'}
+  ],
+  choice: {
+    prompt: '陈警官没有立刻回答。',
+    options: [
+      {t:'把时间、地点、嫌疑人的体貌特征全部写下来，按手印。', eff:{redeem:7, mis:0, flag:'patrolPlan'},
+       res:[{who:'', t:'她看着纸上那一行「05:40，长明巷东口」，沉默了很久。「你为什么这么确定？」你说：「因为我见过。」'}]},
+      {t:'求她查一下萧家的报警记录，把家暴和抢劫并案。', eff:{redeem:5, mis:2, frag:'record'},
+       res:[{who:'', t:'她把两份卷宗放在一起，用红笔圈了三处：「同一片辖区，同一个时间段。你一个人是怎么把这些串起来的？」'}]},
+      {t:'不再多说，转身离开。', eff:{redeem:1, mis:5},
+       res:[{who:'', t:'走到门口，你听见她在身后说：「姑娘，你要是有什么危险，随时打这个电话。」你没有回头。'}]}
+    ]
+  }
+}});
+
+addEv('hospital', { 2: {
+  bg: 'bg_hospital', p: 'boy_bruised',
+  lines: [
+    {who:'', t:'市三院一楼缴费窗口。他排在队伍最前面，从口袋里掏出一把皱巴巴的零钱。'},
+    {who:'', t:'窗口里的护士说：还差一百七。他把口袋翻了个底朝天，耳根慢慢红了。'},
+    {who:'', t:'他父亲坐在走廊长椅上，腿上搭着外套，正大声抱怨医院黑心。'},
+    {who:'', t:'你站在他身后第三个人的位置。他没有回头，但你看见他的肩膀绷得很紧。'},
+    {who:'你', t:'上一世，我连他父亲长什么样都不知道。', p:'girl'}
+  ],
+  choice: {
+    prompt: '队伍往前挪了一步。',
+    options: [
+      {t:'上前把钱补齐，什么也不说。', eff:{redeem:6, mis:4, frag:'bill', flag:'paidBill'},
+       res:[{who:'', t:'收费单打出来，缴费人一栏写着他的名字。你把单子递给他，他捏着那张薄纸，指尖发白。「我会还你。」他说。'}]},
+      {t:'假装偶遇，帮他一起把父亲扶去做检查。', eff:{redeem:6, mis:1, flag:'helpedFather'},
+       res:[{who:'', t:'他父亲一路上骂骂咧咧，他就一直说「嗯」「知道了」「马上」。你扶着另一边，第一次离这个家这么近。'}]},
+      {t:'装作没看见，去急诊拿自己的药。', eff:{redeem:1, mis:5},
+       res:[{who:'', t:'你转身走了。身后传来他低声下气跟护士商量的声音。你把手里的药攥得很紧，指甲掐进掌心。'}]}
+    ]
+  }
+}});
+
+addEv('roof', { 2: {
+  bg: 'bg_rooftop', p: 'boy_rain',
+  lines: [
+    {who:'', t:'天台的水泥地积了一层浅水。他坐在干燥的楼梯间门槛上，脚边放着一罐没开的啤酒。'},
+    {who:'', t:'你在他旁边坐下。这一次，他没有问你是谁。'},
+    {who:'他', t:'「你说，人死了会不会重来？」', p:'boy_rain'},
+    {who:'', t:'雨从屋檐往下淌，像一道帘子。你听见自己心跳的声音，一下一下，很重。'},
+    {who:'你', t:'……会。', p:'girl'},
+    {who:'他', t:'「那为什么有的人，重来一百次也还是来不及？」', p:'boy_rain'}
+  ],
+  choice: {
+    prompt: '他看着雨，没有看你。',
+    options: [
+      {t:'「因为他每次都迟到了三分钟。但这一次，有人会等他。」', eff:{redeem:6, mis:0, flag:'loopTalk'},
+       res:[{who:'', t:'他终于转过头。雨光落在他的眼睛里，像一小片没有熄灭的灯。'}]},
+      {t:'「不会。死了就是死了。」', eff:{redeem:1, mis:5},
+       res:[{who:'他', t:'「哦。」他低下头，把啤酒罐捏出一道折痕。「那挺好的。」', p:'boy_rain'},
+            {who:'', t:'你忽然后悔了。可你不知道怎么把说出去的话收回来。'}]},
+      {t:'反问他：你是不是梦见过什么。', eff:{redeem:5, mis:1, flag:'askedDream'},
+       res:[{who:'他', t:'「梦见过一个人。」他停了很久，「每次醒过来，手上都是血。」', p:'boy_rain'},
+            {who:'', t:'你没有说话。你怕自己一开口，就会哭。'}]}
+    ]
+  }
+}});
+
+/*__L2__*/
+/* ============ 第三次回溯 · 她以为只要解释 ============ */
+addEv('alley', { 3: {
+  bg: 'bg_alley',
+  lines: [
+    {who:'', t:'第三次，你比任何人都早到长明巷。'},
+    {who:'', t:'你在配电箱后面找到一小块干燥的地方，铺着纸板，旁边有半袋吃剩的面包和一副线手套。'},
+    {who:'', t:'抢劫犯住在这里。他每天凌晨五点四十从巷子里出来，沿着墙根走，避开摄像头。'},
+    {who:'', t:'你在纸板下面摸到一把折叠刀。刀柄上缠着胶带，很旧。'},
+    {who:'你', t:'上一世，你就是被这把刀捅穿的。', p:'girl'},
+    {who:'', t:'雨落在铁皮雨棚上，声音密得像有人在数数。'}
+  ],
+  choice: {
+    prompt: '刀在你手里，很凉。',
+    options: [
+      {t:'把刀带走，扔进江里。', eff:{redeem:4, mis:3, flag:'tookKnife'},
+       res:[{who:'', t:'你走了很远，把刀扔进桥下的黑水里。它沉下去的时候没有声音。可你知道，没有刀的人，还会找别的刀。'}]},
+      {t:'拍下所有东西，去派出所报案。', eff:{redeem:7, mis:0, flag:'knifeReport'},
+       res:[{who:'', t:'陈警官带人来了。纸板、面包、手套，全被装进证物袋。她看着你：「你怎么找到的？」你说：「我找了他很久。」'}]},
+      {t:'躲在配电箱后，等他回来。', eff:{redeem:2, mis:8, flag:'ambush'},
+       res:[{who:'', t:'你等到手电的光扫过来。他站在你面前，看了你很久，忽然笑了：「又是你啊。」你听见刀出鞘的声音。'}]}
+    ]
+  }
+}});
+
+addEv('old', { 3: {
+  bg: 'bg_oldbuilding', p: 'boy_bruised',
+  lines: [
+    {who:'', t:'你在楼下等了很久。他终于下来了，脸上多了一道新伤，从眉骨划到颧骨。'},
+    {who:'', t:'他看见你，脚步停了一下，还是走过来。'},
+    {who:'他', t:'「你到底想干什么？」', p:'boy_bruised'},
+    {who:'', t:'楼上传来他父亲的骂声，接着一把断掉的伞从窗户扔下来，砸在你脚边。'},
+    {who:'他', t:'「你看到了。」他笑了一下，那笑很难看，「现在你满意了？觉得我很可怜？」', p:'boy_bruised'},
+    {who:'', t:'你想起上一世，你死前最后想的也是他。可你从来没跟他说过一句完整的话。'}
+  ],
+  choice: {
+    prompt: '雨落在你们中间。',
+    options: [
+      {t:'「我不是可怜你。我是想让你活着。」', eff:{redeem:8, mis:1, flag:'notPity'},
+       res:[{who:'', t:'他愣住了。很久之后，他弯腰把那把断伞捡起来，撑开，举到你头顶。伞骨是断的，雨还是漏下来，落在他自己肩上。'}]},
+      {t:'沉默，把伞递给他。', eff:{redeem:4, mis:5},
+       res:[{who:'', t:'他看着那把伞，没有接。「不用了。」他走进雨里，背影很快被楼道吞掉。'}]},
+      {t:'「是。我就是可怜你。」', eff:{redeem:0, mis:12, flag:'saidPity'},
+       res:[{who:'他', t:'他看着你，眼睛慢慢冷下去。「那你可怜错人了。」', p:'boy_bruised'},
+            {who:'', t:'他转身上楼。你站在雨里，忽然发现「可怜」这两个字，比刀还快。'}]}
+    ]
+  }
+}});
+
+addEv('store', { 3: {
+  bg: 'bg_store', p: 'boy',
+  lines: [
+    {who:'', t:'凌晨两点，便利店的自动门开了。一个穿米色风衣的女孩进来，径直走到收银台。'},
+    {who:'林嘉', t:'「阿礼，阿姨让我给你送件外套。你又不接电话。」'},
+    {who:'', t:'她把一件洗得发白的旧外套放在台面上，动作很熟。他接过去，低声说了句「知道了」。'},
+    {who:'', t:'你坐在窗边，手里那杯牛奶已经凉了。你忽然想起，上一世你连他身边有谁都不知道。'},
+    {who:'林嘉', t:'「这位是？」她看向你，笑得很客气。'},
+    {who:'他', t:'「不认识。」', p:'boy'}
+  ],
+  choice: {
+    prompt: '他没有看你。',
+    options: [
+      {t:'站起来，问林嘉是他什么人。', eff:{redeem:4, mis:3, flag:'askedLin'},
+       res:[{who:'林嘉', t:'「我是他表姐。」她看了看他，又看了看你，「你们吵架了？」'},
+            {who:'', t:'他打断她：「没有。你回去吧。」'}]},
+      {t:'什么也不问，拿起包离开。', eff:{redeem:2, mis:8},
+       res:[{who:'', t:'门铃在你身后响了一声。你走进雨里，眼泪和雨水一起往下掉。你告诉自己，这一次只是误会。可「误会」两个字，本来就是他上一世错过你的原因。'}]},
+      {t:'留下来，把牛奶喝完，等林嘉走。', eff:{redeem:6, mis:1, flag:'stayedStore'},
+       res:[{who:'', t:'林嘉走的时候拍了拍你的肩：「他这个人，嘴硬。你别跟他一般见识。」门关上后，店里只剩关东煮的声音。'}]}
+    ]
+  }
+}});
+
+addEv('police', { 3: {
+  bg: 'bg_police',
+  lines: [
+    {who:'', t:'你又一次坐在派出所的值班室里。陈警官这次没有问你为什么来。'},
+    {who:'', t:'她把一份旧档案推到你面前：「萧国栋，十年前有过一次家暴报警。报警人是他妻子。」'},
+    {who:'陈警官', t:'「那次之后没多久，他妻子在雨天出了车祸。」'},
+    {who:'', t:'档案最后一页贴着一张很旧的照片。女人抱着一个五六岁的男孩，男孩手里拿着一只搪瓷杯。'},
+    {who:'你', t:'……所以他一直留着那只杯子。', p:'girl'}
+  ],
+  choice: {
+    prompt: '陈警官看着你，像在等你说点什么。',
+    options: [
+      {t:'把档案看完，记住每一个日期。', eff:{redeem:5, mis:1, flag:'motherFile'},
+       res:[{who:'', t:'你发现车祸那天，也是十一月十七日。也是雨。原来这个家，早就被同一场雨泡烂了。'}]},
+      {t:'问能不能重新调查他母亲的死。', eff:{redeem:7, mis:2, flag:'reopenCase'},
+       res:[{who:'', t:'陈警官沉默了很久：「十年前的案子，很难。但如果你有新的证据，我可以帮你递上去。」你把这句话记在心里。'}]},
+      {t:'合上档案，说这些不重要。', eff:{redeem:1, mis:4},
+       res:[{who:'', t:'「不重要。」你说。可你走出派出所时，满脑子都是照片里那个抱着杯子的小男孩。'}]}
+    ]
+  }
+}});
+
+addEv('hospital', { 3: {
+  bg: 'bg_hospital',
+  lines: [
+    {who:'', t:'你在市三院的档案室门口站了很久，最后还是走了进去。'},
+    {who:'', t:'十年前，十一月十七日，雨。急诊记录上写着一个女人的名字：抢救无效，死亡时间 05:50。'},
+    {who:'', t:'死亡原因：车祸。家属签字那一栏，是一个歪歪扭扭的、孩子的字迹。'},
+    {who:'', t:'你忽然明白他为什么总在凌晨五点五十分醒来。'},
+    {who:'你', t:'原来不是因为我。是因为她。', p:'girl'}
+  ],
+  choice: {
+    prompt: '你把档案合上，手指在发抖。',
+    options: [
+      {t:'把这份记录拍照留下来。', eff:{redeem:5, mis:0, frag:'bill', flag:'motherRecord'},
+       res:[{who:'', t:'照片存进相册时，你才发现自己相册里全是同一个人的背影：他在雨里，他在楼下，他低头系鞋带。原来你已经看了他这么久。'}]},
+      {t:'去住院部查他自己有没有就诊记录。', eff:{redeem:6, mis:2, flag:'hisRecord'},
+       res:[{who:'', t:'记录显示他来过三次。两次是外伤，一次是「咨询」。咨询那一栏写着：失眠，反复噩梦，自伤倾向。'}]},
+      {t:'什么也不做，坐在走廊长椅上。', eff:{redeem:3, mis:1},
+       res:[{who:'', t:'你坐在那张长椅上，看着电子钟从 03:10 跳到 03:11。你忽然觉得，时间不是往前走，是一层一层往人身上压。'}]}
+    ]
+  }
+}});
+
+addEv('roof', { 3: {
+  bg: 'bg_rooftop', p: 'boy_rain',
+  lines: [
+    {who:'', t:'天台的门开着。他站在栏杆边，没有坐上去，只是看着城市。'},
+    {who:'', t:'你的本子掉在地上，被风翻开。上面写满了日期、时间、地点，还有一句重复了很多遍的话：这一次不能死。'},
+    {who:'', t:'他弯腰捡起来，翻了两页。'},
+    {who:'他', t:'「11月17日，05:50，长明巷。」他抬头看你，「你也在数这个时间？」', p:'boy_rain'},
+    {who:'', t:'雨声忽然变得很远。'}
+  ],
+  choice: {
+    prompt: '本子在他手里。',
+    options: [
+      {t:'把所有事都告诉他：五次，死亡，还有那三分钟。', eff:{redeem:7, mis:2, flag:'toldTruth'},
+       res:[{who:'', t:'你说完了。他没有笑你，也没有说你有病。他只是把本子还给你，手指很轻地碰了一下你的手背：「那你别死。」'}]},
+      {t:'抢回本子，说那是小说素材。', eff:{redeem:2, mis:8},
+       res:[{who:'他', t:'「哦。」他把本子递给你，眼神退回到很远的地方，「写得挺好的。」', p:'boy_rain'},
+            {who:'', t:'你抱着本子，忽然很想把真话从喉咙里抠出来。可你已经习惯了说谎。'}]},
+      {t:'翻开本子，让他看最后一页。', eff:{redeem:5, mis:1, frag:'smoke', flag:'showedBook'},
+       res:[{who:'', t:'最后一页只写了一行：「如果这一次还是不行，就让他忘了我。」他看了很久，把本子合上：「谁写的？」你说：「一个很想救你的人。」'}]}
+    ]
+  }
+}});
+
+/*__L3__*/
+/* ============ 第四次回溯 · 她终于看见他抱着她 ============ */
+addEv('old', { 4: {
+  bg: 'bg_oldbuilding',
+  lines: [
+    {who:'', t:'第四次，你在他父亲出门打牌的时候上了楼。'},
+    {who:'', t:'门没锁。屋里很暗，窗帘拉着，空气里有一股潮湿的烟味。'},
+    {who:'', t:'他的房间很小。一张床，一张桌子，桌上摆着一只粘好的搪瓷杯。床头下露出半截旧手机的充电线。'},
+    {who:'', t:'你蹲下去，把手机拖出来。屏幕亮起，停在一个录音文件上。'},
+    {who:'你', t:'最后一次播放时间：今天凌晨，05:53。', p:'girl'}
+  ],
+  choice: {
+    prompt: '你的手指悬在播放键上。',
+    options: [
+      {t:'戴上耳机，从头听完。', eff:{redeem:6, mis:2, frag:'tape', flag:'tape'},
+       res:[{who:'', t:'录音里是雨声，很长的雨声。然后是他的声音，哑得几乎听不清：「第五次了。我还是没赶上。」'},
+            {who:'', t:'你听见自己在他怀里说：对不起，下次我一定好好爱你。录音到这里断了。'}]},
+      {t:'只拷走最后一段，不听完。', eff:{redeem:3, mis:4, frag:'tape', flag:'tape'},
+       res:[{who:'', t:'你把文件传到自己的手机里，手指一直在抖。有些真相，听一半就够疼了。'}]},
+      {t:'把手机放回去，假装没看见。', eff:{redeem:2, mis:1},
+       res:[{who:'', t:'你把充电线摆回原位，站起身。临走前，你还是忍不住回头看了一眼那只粘好的杯子。'}]}
+    ]
+  }
+}});
+
+addEv('store', { 4: {
+  bg: 'bg_store', p: 'boy',
+  lines: [
+    {who:'', t:'凌晨一点，便利店的排班表上已经划掉了他的名字。'},
+    {who:'', t:'林嘉站在门口收伞，看见你，愣了一下：「你是那天那个女孩。」'},
+    {who:'林嘉', t:'「阿礼辞职了。他说要去外地。」她顿了顿，「他最近总说些奇怪的话，说什么雨会重来，说有人一直在救他。」'},
+    {who:'', t:'收银台后面的位置空着，关东煮的锅还在冒热气。'},
+    {who:'林嘉', t:'「你要是能找到他，帮我劝劝他。他这个人，从来不肯麻烦别人。」'}
+  ],
+  choice: {
+    prompt: '林嘉把一把伞递给你。',
+    options: [
+      {t:'问她，他有没有说过要去哪。', eff:{redeem:4, mis:1, flag:'linsClue'},
+       res:[{who:'林嘉', t:'「长明巷。」她说，「他说他欠那里一个人。」'}]},
+      {t:'谢过她，去他常去的地方一个一个找。', eff:{redeem:6, mis:0, flag:'searched'},
+       res:[{who:'', t:'你跑了旧楼、天台、派出所。鞋里全是水。你忽然明白，他上一世找你的时候，大概也是这样跑的。'}]},
+      {t:'问她，他是不是有喜欢的人。', eff:{redeem:1, mis:7},
+       res:[{who:'林嘉', t:'她看着你，表情有点复杂：「阿礼那个人，喜欢谁都不会说的。」',
+            },{who:'', t:'你点点头。你把这句话听成了另一层意思。'}]}
+    ]
+  }
+}});
+
+addEv('alley', { 4: {
+  bg: 'bg_alley',
+  lines: [
+    {who:'', t:'你第四次站在长明巷。这一次，巷子里的灯全亮着，是你上一轮回修好的。'},
+    {who:'', t:'抢劫犯从巷子深处走出来，看见灯光，停住了。他比你记忆里瘦，右手一直插在口袋里。'},
+    {who:'', t:'你退到摄像头下面，拨通了陈警官的电话。'},
+    {who:'陈警官', t:'「我们五分钟到。你别动，别让他看见你。」'},
+    {who:'', t:'雨声里，你听见自己的呼吸。五分钟，够他走到巷口，也够他消失。'},
+    {who:'你', t:'这次，我不追。我只要他活着走出这条巷子。', p:'girl'}
+  ],
+  choice: {
+    prompt: '他往巷口走了。',
+    options: [
+      {t:'站在原地，把位置实时报给陈警官。', eff:{redeem:7, mis:0, flag:'patrolReady'},
+       res:[{who:'', t:'警车从街口拐进来的时候，他刚走到灯下。光把他的影子拉得很长，然后被警察的影子盖住了。'}]},
+      {t:'跟上去，确认他往哪个方向走。', eff:{redeem:4, mis:4, flag:'followed'},
+       res:[{who:'', t:'你跟了半条街。他忽然回头，你躲进电话亭。玻璃上全是你的呼吸，白得看不清外面。'}]},
+      {t:'冲上去，把他按在墙上。', eff:{redeem:1, mis:9},
+       res:[{who:'', t:'你比他矮一个头。他轻易就把你甩开，刀从口袋里滑出来，在灯下闪了一下。「你他妈有病吧。」'}]}
+    ]
+  }
+}});
+
+addEv('police', { 4: {
+  bg: 'bg_police',
+  lines: [
+    {who:'', t:'陈警官给你倒了一杯热水。这是第一次。'},
+    {who:'', t:'「你最近来过七次。」她说，「每次说的都是同一件事。你知不知道，这很像……」她没把那个词说出口。'},
+    {who:'', t:'你看着杯子里的热气，想起自己确实死过四次。'},
+    {who:'陈警官', t:'「如果你需要，我可以帮你联系心理科。」'},
+    {who:'你', t:'「如果我告诉你，时间在重来，你信吗？」', p:'girl'}
+  ],
+  choice: {
+    prompt: '她看着你，没有笑。',
+    options: [
+      {t:'把手机里的录音放给她听。', eff:{redeem:7, mis:2, flag:'trustPolice'},
+       res:[{who:'', t:'录音放到一半，陈警官把杯子放下了。她没有说话，只是拿起笔，在纸上写了两个字：05:40。'}]},
+      {t:'承认自己状态不好，但请她今晚照常巡逻。', eff:{redeem:6, mis:0, flag:'patrolReady'},
+       res:[{who:'陈警官', t:'「巡逻是照常的。」她看着你，「但你今晚别去长明巷。」'}]},
+      {t:'道歉，说自己只是太累了。', eff:{redeem:2, mis:6},
+       res:[{who:'', t:'她点点头，把心理科的名片推过来。你收下了，像收下一张自己不需要的病历。'}]}
+    ]
+  }
+}});
+
+addEv('hospital', { 4: {
+  bg: 'bg_hospital',
+  lines: [
+    {who:'', t:'你在急诊做了一个心电图。医生看着报告，眉头越皱越紧。'},
+    {who:'医生', t:'「你最近有没有出现过心悸、晕厥？你这个情况，不能受刺激，不能熬夜，更不能剧烈运动。」'},
+    {who:'', t:'你问：会死吗。'},
+    {who:'医生', t:'「按时吃药就不会。但你要答应我，别再淋雨了。」'},
+    {who:'你', t:'……我尽量。', p:'girl'},
+    {who:'', t:'你把报告折好，放进包里最里面的夹层。'}
+  ],
+  choice: {
+    prompt: '走廊尽头的电子钟显示 03:40。',
+    options: [
+      {t:'把报告撕掉，不让任何人知道。', eff:{redeem:4, mis:3, flag:'hidHeart'},
+       res:[{who:'', t:'碎纸落进垃圾桶。你对着玻璃整理了一下头发，告诉自己：救他比这个重要。'}]},
+      {t:'把报告拍照，打算今晚之后告诉他。', eff:{redeem:7, mis:2, flag:'heartShared'},
+       res:[{who:'', t:'照片存在相册最上面。你想，如果今晚能活下来，就把所有事都告诉他。如果不能，至少他以后会知道，不是他一个人有病。'}]},
+      {t:'坐在长椅上，把药吃了，等心跳慢下来。', eff:{redeem:5, mis:0, flag:'tookMedicine'},
+       res:[{who:'', t:'药片很小，苦味却留了很久。你看着窗外的雨，第一次认真想：如果这次活下来，我要怎么活。'}]}
+    ]
+  }
+}});
+
+addEv('roof', { 4: {
+  bg: 'bg_rooftop', p: 'boy_rain',
+  lines: [
+    {who:'', t:'天台上有一个铁皮桶，里面有火。'},
+    {who:'', t:'他在烧东西。旧照片、病历、一件女式毛衣，火光照着他的脸，忽明忽暗。'},
+    {who:'', t:'你认出那件毛衣。派出所档案里的照片上，他母亲穿的就是这件。'},
+    {who:'他', t:'「她走的那天也下雨。」他说，「我一直在想，如果那天我跑快一点，是不是就能拦住那辆车。」', p:'boy_rain'},
+    {who:'', t:'火里有什么东西爆了一声，很轻。'}
+  ],
+  choice: {
+    prompt: '他把最后一张照片拿在手里。',
+    options: [
+      {t:'走过去，陪他把最后一张烧完。', eff:{redeem:8, mis:1, flag:'burnedTogether'},
+       res:[{who:'', t:'照片卷起来，边角先黑，然后整张亮了一下，灭了。他忽然蹲下去，把脸埋在膝盖里。你听见他很小声地说了一句：妈，我尽力了。'}]},
+      {t:'抢下照片，说这些不该烧。', eff:{redeem:3, mis:6},
+       res:[{who:'', t:'他任由你抢走，只是看着你，眼神空得吓人。「留着干什么？提醒我我没用？」'}]},
+      {t:'问他，想不想把妈妈的案子重新查一遍。', eff:{redeem:7, mis:2, flag:'motherJustice'},
+       res:[{who:'', t:'火光照着他的眼睛。他很久才说：「查出来又怎么样。她能活过来吗？」你说：「不能。但你可以。」'}]}
+    ]
+  }
+}});
+
+/*__L4__*/
+/* ============ 第五次回溯 · 她决定不再逃 ============ */
+addEv('alley', { 5: {
+  bg: 'bg_alley',
+  lines: [
+    {who:'', t:'第五次醒来，你没有看手机。你已经知道现在是 17:40，雨刚开始下。'},
+    {who:'', t:'你直接去了长明巷。巷子里的灯全亮着，是你前几轮回一盏一盏修好的。'},
+    {who:'', t:'他站在灯下，像等了很久。他手里没有伞，肩膀全湿了。'},
+    {who:'他', t:'「我总觉得，我会在这里见到你。」', p:'boy_rain'},
+    {who:'', t:'雨顺着他的下颌滴下来。你忽然发现，这是五次以来，他第一次先开口。'},
+    {who:'你', t:'……你等了多久？', p:'girl'}
+  ],
+  choice: {
+    prompt: '他看了你很久。',
+    options: [
+      {t:'把所有事都告诉他：五次死亡，三分钟，还有那条没发出去的短信。', eff:{redeem:8, mis:1, flag:'finalTruth'},
+       res:[{who:'', t:'你说完的时候，雨小了一点。他没有问你是不是疯了，只是伸出手，把你脸上的雨水擦掉。「那你这次，别一个人扛。」'}]},
+      {t:'只告诉他：今晚五点四十，别从这条巷子走。', eff:{redeem:4, mis:3, flag:'warnedFinal'},
+       res:[{who:'他', t:'「为什么？」他问。你说不出来。他等了很久，最后说：「好。」可你知道，他答应得太轻易了。', p:'boy_rain'}]},
+      {t:'让他离开这座城，越远越好。', eff:{redeem:2, mis:7, flag:'sentAway'},
+       res:[{who:'他', t:'他笑了一下，很轻。「我走了，你怎么办？」', p:'boy_rain'},
+            {who:'', t:'你答不上来。你从来没想过，没有他的明天是什么样。'}]}
+    ]
+  }
+}});
+
+addEv('old', { 5: {
+  bg: 'bg_oldbuilding', p: 'boy_bruised',
+  lines: [
+    {who:'', t:'萧家的门开着。他父亲坐在客厅里，脚边是空酒瓶，手里攥着一根皮带。'},
+    {who:'', t:'他站在门口，没有进去，也没有走。像一根被钉在原地的钉子。'},
+    {who:'萧国栋', t:'「翅膀硬了？敢不回来了？」'},
+    {who:'', t:'皮带抽在门框上，发出一声脆响。他眼皮都没抬。'},
+    {who:'你', t:'这一次，我站在他前面。', p:'girl'}
+  ],
+  choice: {
+    prompt: '酒瓶倒了，在地上滚了半圈。',
+    options: [
+      {t:'打开手机录像，同时报警，把每一次挥动都录下来。', eff:{redeem:8, mis:2, flag:'fatherArrest'},
+       res:[{who:'', t:'皮带落下来的时候，你把他往后拉了一步。皮带抽在你手臂上，火辣辣地疼。你没有躲，镜头也没有抖。'}]},
+      {t:'挡在他面前，说：你要打就打我。', eff:{redeem:6, mis:1, flag:'shielded'},
+       res:[{who:'', t:'他父亲愣了一下，随即骂得更难听。你感觉到他在你身后攥住了你的衣角，很轻，像怕弄疼你。'}]},
+      {t:'拉着他的手，转身就走。', eff:{redeem:5, mis:2, flag:'pulledAway'},
+       res:[{who:'', t:'你拉着他跑下三楼。身后是酒瓶砸在门上的声音。跑到雨里，他才发现自己的手在抖。'}]}
+    ]
+  }
+}});
+
+addEv('store', { 5: {
+  bg: 'bg_store', p: 'boy',
+  lines: [
+    {who:'', t:'便利店的灯还亮着。新来的店员在打瞌睡，关东煮的锅已经空了。'},
+    {who:'', t:'你坐在靠窗的老位置，把那部旧手机放在桌上。屏幕上是那条短信，编辑框停在那句话后面。'},
+    {who:'', t:'他坐在你对面，没有问这部手机是哪来的。'},
+    {who:'他', t:'「你每次都是一个人来。」他说，「这次能不能，让我跟你一起？」', p:'boy'},
+    {who:'', t:'窗外，雨顺着玻璃往下淌。你看见玻璃上两个人的倒影，第一次靠得这么近。'}
+  ],
+  choice: {
+    prompt: '他把手放在桌上，掌心朝上。',
+    options: [
+      {t:'把手机推给他，让他自己看那条短信。', eff:{redeem:8, mis:1, flag:'showedMsg'},
+       res:[{who:'', t:'他盯着屏幕看了很久。久到你以为他不会说话。然后他抬起头，眼睛是红的：「这句话，应该我来说。」'}]},
+      {t:'握住他的手，告诉他：这次我们一起等到六点。', eff:{redeem:7, mis:0, flag:'waitTogether'},
+       res:[{who:'', t:'他的手很凉，掌心有一层薄茧。他反握住你，很用力，像怕你下一秒钟就会消失。'}]},
+      {t:'把手机收起来，说时间不多了。', eff:{redeem:3, mis:4},
+       res:[{who:'', t:'他点点头，把手收回去。你们之间隔着那张小桌子，谁也没有再说话。'}]}
+    ]
+  }
+}});
+
+addEv('police', { 5: {
+  bg: 'bg_police',
+  lines: [
+    {who:'', t:'凌晨四点，派出所里只有陈警官和一台还亮着的电脑。'},
+    {who:'', t:'你把所有东西摊在桌上：三次笔录、旧档案、录音、医院报告。'},
+    {who:'陈警官', t:'「你是想让我相信，你已经死了四次？」'},
+    {who:'', t:'你看着她，点了点头。'},
+    {who:'陈警官', t:'「那这一次，你想让我做什么？」'}
+  ],
+  choice: {
+    prompt: '她把笔盖拔开，等你说话。',
+    options: [
+      {t:'请她 05:40 派车到长明巷东口，抓那个抢劫犯。', eff:{redeem:8, mis:1, flag:'patrolReady'},
+       res:[{who:'', t:'她写下了时间、地点、车牌。写完抬头看你：「如果你说的是真的，今晚之后，你得跟我解释清楚。」'}]},
+      {t:'请她先派人去萧家旧楼，把他父亲带走。', eff:{redeem:7, mis:2, flag:'fatherArrest'},
+       res:[{who:'', t:'她打了两个电话。挂断之后说：「人已经带回去了。你那个男孩，今晚安全了。」你忽然想哭。'}]},
+      {t:'什么也不请求，只是坐一会儿。', eff:{redeem:3, mis:2},
+       res:[{who:'', t:'日光灯发出很轻的电流声。你坐在那里，第一次觉得「安全」这个词离自己这么近。'}]}
+    ]
+  }
+}});
+
+addEv('hospital', { 5: {
+  bg: 'bg_hospital',
+  lines: [
+    {who:'', t:'市三院的自动门开开合合。你挂完号，坐在长椅上等叫号。'},
+    {who:'', t:'心跳得很快，手心里全是汗。护士叫到你的名字时，你站起来，眼前黑了一下。'},
+    {who:'', t:'你扶住墙，慢慢坐回去。'},
+    {who:'你', t:'不能是现在。再撑一会儿。', p:'girl'},
+    {who:'', t:'你把药瓶拧开，倒出两粒，干咽下去。药片刮过喉咙，很苦。'}
+  ],
+  choice: {
+    prompt: '墙上的钟指向 04:20。',
+    options: [
+      {t:'让护士给你挂一瓶水，尽快把状态稳住。', eff:{redeem:7, mis:1, flag:'drip'},
+       res:[{who:'', t:'冰凉的液体顺着手背流进血管。你看着点滴一滴一滴往下落，第一次觉得时间也可以这么慢。'}]},
+      {t:'不看了，拿上药就走。', eff:{redeem:4, mis:4},
+       res:[{who:'', t:'你把药塞进包里，走进雨里。身后护士喊了一声，你没有回头。'}]},
+      {t:'给他发一条消息：我在市三院，你能来吗。', eff:{redeem:8, mis:1, flag:'calledHim'},
+       res:[{who:'', t:'消息发出去不到十秒，电话就响了。他喘得很厉害：「别动。我马上到。」'}]}
+    ]
+  }
+}});
+
+addEv('roof', { 5: {
+  bg: 'bg_rooftop', p: 'boy_rain',
+  lines: [
+    {who:'', t:'天台上没有火，也没有烟。他站在栏杆边，手里拿着那只粘好的搪瓷杯。'},
+    {who:'', t:'雨已经小了，城市在脚下亮着一层湿漉漉的光。'},
+    {who:'他', t:'「我做过很多次一样的梦。」他说，「梦里我抱着一个人，怎么跑都跑不到医院。」', p:'boy_rain'},
+    {who:'他', t:'「每次醒过来，我都记得她的体温在往下掉。」'},
+    {who:'', t:'他把杯子递给你。杯底那个「礼」字，被胶水粘得很仔细。'},
+    {who:'他', t:'「那个人，是不是你？」'}
+  ],
+  choice: {
+    prompt: '杯子在你手里，还带着他的体温。',
+    options: [
+      {t:'「是。五次都是我。这次换你赶得上。」', eff:{redeem:9, mis:0, flag:'finalTruth'},
+       res:[{who:'', t:'他闭上眼睛，很久才睁开。再睁开时，那种一直挂在他眼里的、随时准备道歉的神情，终于不见了。'}]},
+      {t:'「不是。你只是太累了。」', eff:{redeem:2, mis:6},
+       res:[{who:'他', t:'他看了你一会儿，点点头，把杯子收回去。「可能吧。」', p:'boy_rain'},
+            {who:'', t:'他转身下楼。你站在原地，忽然很想追上去，可你的脚像生了根。'}]},
+      {t:'反问他：如果是，你会不会怕。', eff:{redeem:6, mis:1, flag:'askedFear'},
+       res:[{who:'他', t:'「怕。」他说，「怕这次还是来不及。」', p:'boy_rain'},
+            {who:'', t:'你握住他的手：「那就跑快一点。我会等你。」'}]}
+    ]
+  }
+}});
+
+/*__L5__*/
+/* ============ 轮回章节 · 开场 ============ */
+LOOP_INTRO[1] = { sub:'她以为只要报警', lines:[
+  {who:'', t:'17:40。雨刚下起来。你站在长明巷口，手机上的日期是十一月十七日。'},
+  {who:'', t:'你还活着。他也还活着。'},
+  {who:'', t:'这一次，你要让他记住一个名字：{name}。'},
+  {who:'', t:'这一次，你有四个时段。天色一黑，雨就会变大；到了凌晨五点五十，你会死。'},
+  {who:'', t:'至少，上一次是这样。'}
+]};
+LOOP_INTRO[2] = { sub:'她以为只要靠近', lines:[
+  {who:'', t:'17:40。你又一次站在同一个路口。连积水里的涟漪都和上一次一样。'},
+  {who:'', t:'上一世你死在他怀里，血滴在他手背上。他哭了。你从来没见过他哭。'},
+  {who:'', t:'这一次，你想离他近一点。近到他能记住你的脸。'},
+  {who:'', t:'可你只有四个时段。四个。'}
+]};
+LOOP_INTRO[3] = { sub:'她以为只要解释', lines:[
+  {who:'', t:'17:40。雨落在同一块积水上，连声音都一模一样。'},
+  {who:'', t:'你开始明白：报警、靠近、解释，都不够。'},
+  {who:'', t:'你得让他相信一件他自己都不敢想的事——时间真的重来过。'},
+  {who:'', t:'可一个从小就被打成「没事」的人，要怎么相信奇迹？'}
+]};
+LOOP_INTRO[4] = { sub:'她终于看见他抱着她', lines:[
+  {who:'', t:'17:40。你数过，这是第四次。'},
+  {who:'', t:'前三次，你都死在他怀里。可这一次醒来时，你手背上有一道不属于你的伤口。'},
+  {who:'', t:'像是有人握着你的手，替你挡了一下。'},
+  {who:'你', t:'……他是不是，也在重来？', p:'girl'}
+]};
+LOOP_INTRO[5] = { sub:'她决定不再逃', lines:[
+  {who:'', t:'17:40。最后一次。'},
+  {who:'', t:'你摸了摸口袋，手机屏幕亮着：今日有雨，凌晨转大，06:00 转晴。'},
+  {who:'', t:'你终于知道，这场雨有尽头。'},
+  {who:'', t:'也知道，如果这一次还是不行，就没有下一次了。'}
+]};
+
+/* ============ 五次死亡 ============ */
+DEATHS[1] = {
+  bg:'bg_blood',
+  lines:[
+    {who:'', t:'05:40。长明巷东口。'},
+    {who:'', t:'你本来可以不来。可你总觉得，只要站在这个路口，就能把那个时间点熬过去。'},
+    {who:'', t:'你听见身后有脚步声。回头的时候，刀已经进了身体。'},
+    {who:'', t:'不疼。只是很冷，像有人把一整夜的雨都倒进了你身体里。'},
+    {who:'', t:'手机掉在水里，报警电话还连着。接线员一直在问：女士，你还好吗？'},
+    {who:'', t:'你抓住最后一点力气，对着电话说：求你们，救救那个男孩。他在被父亲家暴，快被打死了。'},
+    {who:'', t:'然后你想起他。想起他明天还要上夜班，想起他手上的纱布。'},
+    {who:'', t:'你给他发了最后一条消息：对不起。下次，我一定好好爱你。'},
+    {who:'', t:'血从你身下漫开。05:50，他跑过来，跪进水里，把你抱起来。'},
+    {who:'', t:'他来得太晚了。每一次，都太晚了。'}
+  ],
+  pov:[
+    {who:'', t:'——他的三分钟——', bg:'bg_alley'},
+    {who:'他', t:'他醒过来的时候，手里全是血。不是他的。', p:'boy_blood'},
+    {who:'', t:'手机在他口袋里，屏幕上是一条没发出去的短信。编辑时间：05:47。'},
+    {who:'', t:'他疯了一样往长明巷跑。一百二十步，他用了四十秒。可她还是在他怀里凉下去。'},
+    {who:'', t:'她躺在他怀里，白衬衫被雨泡透，像一朵被踩碎的花。', p:'girl_blood'},
+    {who:'', t:'他不知道，这一天她去了哪里，见了谁，为什么一次又一次出现在他的生活里。'},
+    {who:'', t:'他只知道，她的血滴在他手背上的时候，雨停了一瞬。'},
+    {who:'', t:'他第一次听见她的名字，是在派出所的笔录上：{name}。'},
+    {who:'', t:'然后，他开始往回跑。'}
+  ]
+};
+DEATHS[2] = {
+  bg:'bg_stairwell',
+  lines:[
+    {who:'', t:'05:50。萧家旧楼的楼梯转角。'},
+    {who:'', t:'你本来可以不去。可你怕他一个人面对那扇门。'},
+    {who:'', t:'他父亲把酒瓶砸过来。你推开了他。'},
+    {who:'', t:'玻璃碎在你后颈。你听见他喊你的名字，声音很远，像隔着五层楼。'},
+    {who:'', t:'他把你抱在怀里，用手去捂，血从指缝里往外涌。'},
+    {who:'', t:'你说：别怕。这次不疼。'},
+    {who:'', t:'你抬起手，想摸一下他的脸，可手抬到一半就没力气了。'},
+    {who:'', t:'最后你听见的是雨。还有他一遍一遍地说：对不起，对不起。'},
+    {who:'', t:'你想说，不是你的错。'}
+  ],
+  pov:[
+    {who:'', t:'——他的三分钟——'},
+    {who:'他', t:'他又在 05:47 醒来，手心是温的，血还没凉。', p:'boy_blood'},
+    {who:'', t:'这一次，他看见了她今天做的事：她把药挂在门把手上；她在便利店替他理货；她在派出所留下三次笔录。'},
+    {who:'', t:'他终于知道，那些不是巧合。'},
+    {who:'', t:'可他只有三分钟。他还是没赶上。'},
+    {who:'', t:'他抱着她，一遍一遍叫她的名字：{name}。'},
+    {who:'', t:'她没听见。可他记住了。'}
+  ]
+};
+DEATHS[3] = {
+  bg:'bg_alley',
+  lines:[
+    {who:'', t:'05:50。你没能拦住那辆车。'},
+    {who:'', t:'你在他下班的路上等他。伞是新买的，你想，至少这一次别让他淋雨。'},
+    {who:'', t:'你推开他的时候，车灯把雨照成了白色。'},
+    {who:'', t:'你飞起来的那一秒，忽然觉得很轻松。终于不用再数时间了。'},
+    {who:'', t:'他跪在雨里，把你抱起来，一直跑。你的血顺着他的袖口往下滴。'},
+    {who:'', t:'医院的红灯亮起来的时候，你听见他说：到了，我们到了。'},
+    {who:'', t:'你想睁眼看看他。可眼皮太重了。'}
+  ],
+  pov:[
+    {who:'', t:'——他的六分钟——'},
+    {who:'他', t:'他第三次在 05:44 醒来，发现自己站得离她更近了。', p:'boy_blood'},
+    {who:'', t:'三分钟变成了六分钟。他还是不够快。'},
+    {who:'', t:'他在她手机里看到一张照片：一只摔碎的搪瓷杯，杯底刻着「礼」字。'},
+    {who:'', t:'他忽然记起，那是他小时候自己刻的。'},
+    {who:'', t:'一个只认识他几天的人，怎么会知道他所有的秘密？'},
+    {who:'', t:'除非，她已经认识他很久了。'}
+  ]
+};
+DEATHS[4] = {
+  bg:'bg_stairwell',
+  lines:[
+    {who:'', t:'05:50。你替他挡下了那把刀。'},
+    {who:'', t:'你陪他回家拿最后一点东西。你想，这是最后一次了，拿完就走。'},
+    {who:'', t:'他父亲喝醉了，手里不知道什么时候多了一把水果刀。'},
+    {who:'', t:'你倒下去的时候，看见他扑过来。他的脸很白，像一张被雨泡皱的纸。'},
+    {who:'', t:'你想告诉他，别哭。可血堵在喉咙里，只发出很轻的一声。'},
+    {who:'', t:'他抱着你，说：我带你回家。'},
+    {who:'', t:'你想，原来我也有家。'}
+  ],
+  pov:[
+    {who:'', t:'——他的三十分钟——'},
+    {who:'他', t:'第四次醒来时，墙上的钟指着 05:20。他第一次，比她的死亡早了整整半小时。', p:'boy_blood'},
+    {who:'', t:'手机里有一段录音，是他自己的声音：第五次了，我还是没赶上。'},
+    {who:'', t:'他不记得自己录过。可他知道，那是真的。'},
+    {who:'', t:'这一次，他终于明白：她也在重来。她比他早十二个小时。她一直在前面等他。'},
+    {who:'', t:'他跑了所有她可能在的地方。旧楼、便利店、天台。等他听见警笛时，已经 05:50 了。'},
+    {who:'', t:'他对着空无一人的巷口说：下一次，换我早一点。'}
+  ]
+};
+
+/* ============ 终局 ============ */
+FINAL = {
+  bg:'bg_alley',
+  lines:[
+    {who:'', t:'05:40。长明巷东口。'},
+    {who:'', t:'他比上一次醒得更早。早到能在雨停之前，站在你面前。'},
+    {who:'', t:'雨小了一点。远处的天边有一线很淡的白。'},
+    {who:'', t:'他站在路灯下，手里握着那只搪瓷杯。你走过去，他抬起头。'},
+    {who:'他', t:'「我都想起来了。」', p:'boy_rain'},
+    {who:'他', t:'「{name}。」他叫你的名字，像练习过很多次。', p:'boy_rain'},
+    {who:'他', t:'「每一次，我都抱着你。每一次，我都晚三分钟。」', p:'boy_rain'},
+    {who:'他', t:'「这一次，你别动。让我跑过来。」', p:'boy_rain'},
+    {who:'', t:'你听见巷子深处有脚步声。五点四十七分。'},
+    {who:'', t:'雨落在你们之间，像一层很薄的玻璃。'}
+  ],
+  choice:{
+    prompt:'你只有一次选择。',
+    options:[
+      {t:'留在原地，把手机递给他，让他自己看那条短信。',
+       req:s => s.frags.length >= 5,
+       lock:'你还没有攒够让他相信这一切的记忆（至少 5 枚记忆碎片）。',
+       eff:{flag:'finalStay'},
+       res:[
+         {who:'', t:'他把手机接过去。屏幕的光照在他脸上。'},
+         {who:'', t:'他读完那条短信，抬头看你。五点四十七分。'},
+         {who:'', t:'巷子深处传来脚步声。他没有回头，只是伸手，把你拉到身后。'}
+       ],
+       after:()=>showEnding(resolveEnding())},
+      {t:'让他留在灯下，你独自走向巷口。', eff:{flag:'finalGo'},
+       res:[
+         {who:'', t:'你把他按在灯下，说：等我。'},
+         {who:'', t:'他抓住你的手腕，很用力。你一根一根掰开他的手指。'},
+         {who:'', t:'你走进巷子的阴影里。五点四十七分。'}
+       ],
+       after:()=>showEnding(resolveEnding())},
+      {t:'把那条短信发出去，然后转身离开。', eff:{flag:'finalSend'},
+       res:[
+         {who:'', t:'你按下发送。手机震了一下。'},
+         {who:'', t:'他低头看口袋。你没有等他抬头。'},
+         {who:'', t:'你转身走进雨里。五点四十七分。'}
+       ],
+       after:()=>showEnding(resolveEnding())},
+      {t:'什么也不做，站在原地等雨停。', eff:{flag:'finalWait'},
+       res:[
+         {who:'', t:'你站在原地。雨落在你脸上，很轻。'},
+         {who:'', t:'他叫了你的名字。你没有回答。'},
+         {who:'', t:'五点四十七分。你听见自己的心跳，一下，又一下。'}
+       ],
+       after:()=>showEnding(resolveEnding())}
+    ]
+  }
+};
+
+/* ============ 结局 ============ */
+ENDINGS.true = {
+  no:'01', name:'这一次，我好好爱你', type:'TRUE END', img:'bg_dawn',
+  text:'06:00，雨停了。\n\n警察在巷口按住了那个人。刀掉在地上，发出很轻的一声。\n\n你站在灯下，腿一软，被他接住。他的手在抖，抱得却很稳。\n\n「你流血了。」他说。\n「我知道。」你说，「这次没死。」\n\n他把额头抵在你肩上，很久没有抬头。你听见他很小声地说：\n\n「{name}。对不起。」\n\n你说：不是你的错。\n\n他说：我知道。可我还是想把这五次，一次一次说给你听。\n\n天亮了。第一班公交车从街口开过去，溅起一小片水光。\n\n他牵着你的手，往医院走。走到一半，他忽然停下来：\n\n「下次，我好好爱你。」\n\n你说：好。这次不许迟到。'
+};
+ENDINGS.beforeRain = {
+  no:'02', name:'雨停之前', type:'BEST END', img:'bg_dawn',
+  text:'06:00，雨停了。你活了下来。\n\n他守在你床边，眼睛里全是血丝。他记得今晚，却记不得那五次。\n\n你问他：你相信人会重来吗。\n\n他想了很久，说：我信。因为我总觉得，我已经认识你很久了。\n\n你笑了。笑着笑着，眼泪掉下来。\n\n出院那天，他撑着伞来接你。伞是新的，骨很结实。\n\n他说：以后下雨，我来接你。\n\n你说：好。\n\n你不知道这算不算赢。但至少这一次，两个人都活着。'
+};
+ENDINGS.fifth = {
+  no:'03', name:'第五次错过', type:'BAD END', img:'bg_blood',
+  text:'05:50。他赶到的时候，你还有一口气。\n\n他把你抱起来，一直说：这次我赶上了，我赶上了。\n\n你想告诉他，没有。可你已经说不出话。\n\n06:00，雨停了。你在他怀里凉下去。\n\n他抱着你坐了很久，久到警察来了，天亮了，早班车开过去了。\n\n然后他低下头，在你耳边说：下一次。\n\n雨又开始下了。'
+};
+ENDINGS.unheard = {
+  no:'04', name:'你从未听见', type:'BAD END', img:'bg_store',
+  text:'你死的时候，他站在离你三步远的地方。\n\n他看见你倒下，看见血从你身下漫开，却没有过来。\n\n因为你最后对他说的那句话是：别管我。\n\n他信了。\n\n那条短信在他手机里躺了很多年。他换了三次手机，每次都把它迁过去，却从来没有点开。\n\n他不知道，里面写着一句他等了一辈子的话。'
+};
+ENDINGS.herName = {
+  no:'05', name:'她的名字', type:'SAD END', img:'bg_rooftop',
+  text:'他记得一切。五次雨，五次死亡，五次他抱着她。\n\n可他还是没能救下她。\n\n后来他离开了这座城。每年十一月十七日，他都会回来，在长明巷口站到天亮。\n\n有人问他等谁。他说：{name}。\n\n对方问：她是谁？\n\n他想了很久，说：一个每次都说下次好好爱我的人。\n\n雨落下来。他撑开伞，伞下只有一个人。'
+};
+ENDINGS.letGo = {
+  no:'06', name:'谁先放手', type:'NORMAL END', img:'bg_hospital',
+  text:'第五次，你没有去长明巷。\n\n你在出租屋里睡了一整夜，听着雨从大变小，从天黑到天亮。\n\n06:00，雨停了。你活了下来。\n\n后来你搬走了，换了工作，学会在雨天带伞。\n\n很多年后，你在街口等红灯，看见一个穿黑色长袖的男人从对面走过去。\n\n他没有看见你。\n\n绿灯亮了。你往前走，他往后退。你们谁都没有回头。'
+};
+ENDINGS.nextRain = {
+  no:'07', name:'下一个雨天', type:'NORMAL END', img:'bg_alley',
+  text:'06:00，雨停了。你活了下来，他也活着。\n\n你们站在巷口，谁都没有说话。远处有警笛，天亮得很慢。\n\n他说：谢谢你。\n\n你说：不客气。\n\n然后你们各自转身，走进各自的雨里。\n\n那一夜之后，你偶尔还会梦见长明巷。梦见灯亮着，他站在灯下。\n\n醒来时窗外在下雨。\n\n你总觉得，还有下一次。'
+};
+ENDINGS.lastBack = {
+  no:'08', name:'最后一次回溯', type:'HIDDEN END', img:'bg_blood',
+  text:'你在第四次死亡之后，选择了放手。\n\n他醒过来，手里是她的血。他没有再跑。\n\n他抱着她，坐到雨停，坐到天亮，坐到警察来。\n\n然后他低下头，把脸埋进她湿透的头发里。\n\n「这次我不救你了。」他说，「我陪你。」\n\n雨停了一瞬。\n\n然后，又开始倒着下。\n\n他不知道，这是第几次。\n\n他只知道，下一次，他还是会跑。'
+};
+
+/*__META__*/
+/* =======================================================
+   引擎
+   ======================================================= */
+const CN = ['一','二','三','四','五'];
+const PIMG = {  girl:'girl_normal', boy:'boy_normal', boy_bruised:'boy_bruised',
+  boy_rain:'boy_rain', girl_blood:'girl_blood', boy_blood:'boy_blood'
+};
+const IMG = window.IMG || null;
+function imgUrl(name){ return (IMG && IMG[name]) || ('images/' + name + '.jpg'); }
+const PROLOGUE = [
+  {bg:'bg_blood', t:'十一月十七日，凌晨五点五十分。雨下了整整一夜。'},
+  {bg:'bg_blood', t:'长明巷的积水里，躺着一个女孩。'},
+  {bg:'bg_blood', t:'她的白衬衫被雨泡透，血从指缝里流出来，混进雨水，往巷口淌。'},
+  {bg:'bg_blood', t:'手机屏幕还亮着。短信编辑框里有一行字，没有发出去——'},
+  {bg:'bg_blood', t:'「对不起。下次，我一定好好爱你。」'},
+  {bg:'bg_blood', t:'一个男孩跑过来，跪进水里，把她抱进怀里。'},
+  {bg:'bg_blood', t:'他来得太晚了。每一次，都太晚了。'},
+  {bg:'bg_blood', t:'第一滴血落在他的手背上时，雨忽然停了一瞬。'},
+  {bg:'bg_blood', t:'然后，雨开始倒着下。'},
+  {bg:'bg_blood', t:'如果时间可以重来，你愿意用多少次，换他一次回头？'}
+];
+
+let state = null;
+let gallery = loadGallery();
+let storyLog = loadLog();
+let lastFromGallery = false;
+let beats = [], bi = 0, beatsDone = null;
+let typing = false, typingFull = '', typingIdx = 0, typeTimer = null;
+let inputLocked = false;
+let toastTimer = null;
+let galleryReturn = 'title';
+
+const dtext = $('#dtext'), speaker = $('#speaker'), nextEl = $('#next');
+const dialog = $('#dialog'), choicesEl = $('#choices'), mapLayer = $('#mapLayer');
+const stageBg = $('#stageBg'), portrait = $('#portrait'), portraitImg = $('#portraitImg');
+
+/* ---------- 存档 ---------- */
+function freshState(name){
+  return {name:name, loop:1, seg:0, redeem:0, mis:0, mem:0, frags:[], flags:{}, visited:{1:[]}};
+}
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    if(!s || typeof s.name !== 'string' || !s.loop) return null;
+    s.flags = s.flags || {}; s.frags = s.frags || []; s.visited = s.visited || {};
+    return s;
+  }catch(e){ return null; }
+}
+function save(){
+  if(!state) return;
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function loadGallery(){
+  try{
+    const g = JSON.parse(localStorage.getItem(GAL_KEY));
+    return Array.isArray(g) ? g : [];
+  }catch(e){ return []; }
+}
+function saveGallery(){
+  try{ localStorage.setItem(GAL_KEY, JSON.stringify(gallery)); }catch(e){}
+}
+function unlockEnding(id){
+  if(!gallery.includes(id)){ gallery.push(id); saveGallery(); }
+}
+
+/* ---------- 剧情回忆 ---------- */
+function loadLog(){
+  try{
+    const g = JSON.parse(localStorage.getItem(LOG_KEY));
+    if(!Array.isArray(g)) return [];
+    return g.filter(x=>x && typeof x.t === 'string').slice(-500);
+  }catch(e){ return []; }
+}
+function saveLog(){
+  try{ localStorage.setItem(LOG_KEY, JSON.stringify(storyLog.slice(-500))); }catch(e){}
+}
+function clearLog(){ storyLog = []; saveLog(); }
+function pushLog(who, text, kind){
+  if(!text) return;
+  storyLog.push({w:who || '', t:String(text), k:kind || ''});
+  if(storyLog.length > 500) storyLog = storyLog.slice(-500);
+  saveLog();
+}
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function logToText(){
+  return storyLog.map(it=>{
+    if(it.k === 'sep') return '\n—— ' + it.t + ' ——\n';
+    if(it.k === 'choice') return it.t;
+    return (it.w ? it.w + '：' : '') + it.t;
+  }).join('\n').trim();
+}
+function copyText(text){
+  const fallback = ()=>{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    ta.remove();
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(fallback);
+  }else fallback();
+}
+function stamp(){
+  const d = new Date(), p = n=>String(n).padStart(2,'0');
+  return d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes());
+}
+
+/* ---------- 屏幕 ---------- */
+function screen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id));
+}
+function setBg(name){
+  stageBg.style.backgroundImage =
+    'linear-gradient(180deg,rgba(5,8,13,.12) 0%,rgba(5,8,13,.2) 48%,rgba(5,8,13,.68) 100%), url("'+imgUrl(name)+'")';
+}
+function setPortrait(p){
+  if(!p){ portrait.classList.remove('on'); return; }
+  const file = PIMG[p] || 'boy_normal';
+  if(portraitImg.dataset.file !== file){
+    portraitImg.dataset.file = file;
+    portraitImg.src = imgUrl(file);
+  }
+  portrait.classList.remove('noimg');
+  portrait.classList.add('on');
+}
+portraitImg.addEventListener('error', ()=>{ portrait.classList.add('noimg'); });
+
+function setSpeaker(who){
+  if(!who){ speaker.className='none'; speaker.textContent=''; return; }
+  speaker.className = (who==='你') ? 'her' : '';
+  speaker.textContent = who;
+}
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('on'), 2200);
+}
+function hudLoopText(){
+  if(!state || !state.loop) return '序 章';
+  return '第' + CN[state.loop-1] + '次回溯';
+}
+function updateHUD(){
+  if(!state) return;
+  $('#hudLoop').textContent = hudLoopText();
+  $('#hudTime').textContent = state.seg >= SEG_TOTAL ? '05:40' : SEG_TIME[state.seg];
+  $('#hudRedeem').textContent = state.redeem;
+  $('#hudMis').textContent = state.mis;
+  $('#hudMem').textContent = state.mem;
+  $('#hudFrag').textContent = state.frags.length + '/7';
+  const p = $('#titleProgress');
+  if(p) p.textContent = '结局 ' + gallery.length + ' / 8';
+}
+
+/* ---------- 打字机 ---------- */
+function typeText(txt){
+  clearInterval(typeTimer);
+  typingFull = txt; typingIdx = 0; typing = true;
+  dtext.textContent = '';
+  nextEl.classList.remove('on');
+  typeTimer = setInterval(()=>{
+    typingIdx++;
+    dtext.textContent = typingFull.slice(0, typingIdx);
+    if(typingIdx >= typingFull.length){
+      clearInterval(typeTimer);
+      typing = false;
+      nextEl.classList.add('on');
+    }
+  }, 26);
+}
+function completeTyping(){
+  clearInterval(typeTimer);
+  dtext.textContent = typingFull;
+  typing = false;
+  nextEl.classList.add('on');
+}
+
+/* ---------- 播放 ---------- */
+function runBeats(list, done){
+  choicesEl.classList.remove('on');
+  choicesEl.innerHTML = '';
+  inputLocked = false;
+  beats = list || [];
+  bi = 0;
+  beatsDone = done || null;
+  if(!beats.length){ const d=beatsDone; beatsDone=null; if(d) d(); return; }
+  showBeat();
+}
+function showBeat(){
+  const b = beats[bi];
+  if(!b){ const d=beatsDone; beatsDone=null; if(d) d(); return; }
+  if(b.bg) setBg(b.bg);
+  if(b.p) setPortrait(b.p);
+  else if(b.who === '他') setPortrait('boy');
+  else if(b.who === '你') setPortrait('girl');
+  setSpeaker(b.who || '');
+  pushLog(b.who || '', fmt(b.t), '');
+  typeText(fmt(b.t));
+}
+function advance(){
+  if(inputLocked) return;
+  if(typing){ completeTyping(); return; }
+  bi++;
+  if(bi >= beats.length){
+    nextEl.classList.remove('on');
+    const d = beatsDone; beatsDone = null;
+    if(d) d();
+  }else{
+    showBeat();
+  }
+}
+$('#stage').addEventListener('click', e=>{
+  if(e.target.closest('#choices, button')) return;
+  advance();
+});
+
+/* ---------- 选项 ---------- */
+function showChoices(choice){
+  inputLocked = true;
+  nextEl.classList.remove('on');
+  choicesEl.innerHTML = '';
+  if(choice.prompt){
+    const p = document.createElement('div');
+    p.className = 'cprompt';
+    p.textContent = fmt(choice.prompt);
+    choicesEl.appendChild(p);
+    pushLog('', fmt(choice.prompt), 'sys');
+  }
+  choice.options.forEach(o=>{
+    const ok = !o.req || o.req(state);
+    const b = document.createElement('button');
+    b.className = 'choice' + (ok ? '' : ' locked');
+    const t = document.createElement('span');
+    t.textContent = fmt(o.t);
+    b.appendChild(t);
+    if(!ok){
+      const lk = document.createElement('span');
+      lk.className = 'lk';
+      lk.textContent = o.lock || '还差一点。';
+      b.appendChild(lk);
+      b.addEventListener('click', ()=>toast('还差一点。'));
+    }else{
+      b.addEventListener('click', ()=>pickOption(o));
+    }
+    choicesEl.appendChild(b);
+  });
+  choicesEl.classList.add('on');
+}
+function pickOption(o){
+  choicesEl.classList.remove('on');
+  choicesEl.innerHTML = '';
+  inputLocked = true;
+  pushLog('', '▸ ' + fmt(o.t), 'choice');
+  applyEff(o.eff);
+  runBeats(o.res || [], ()=>{
+    if(o.after) o.after();
+    else finishEvent();
+  });
+}
+function applyEff(e){
+  if(!e) return;
+  if(typeof e === 'function') e = e(state);
+  if(e.redeem) state.redeem = clamp(state.redeem + e.redeem, 0, 999);
+  if(e.mis) state.mis = clamp(state.mis + e.mis, 0, 999);
+  if(e.mem) state.mem = clamp(state.mem + e.mem, 0, 5);
+  if(e.flag) state.flags[e.flag] = true;
+  if(e.frag && !state.frags.includes(e.frag)){
+    state.frags.push(e.frag);
+    state.redeem += 5;
+    toast('拾得记忆碎片 · ' + FRAGS[e.frag].name);
+  }
+  updateHUD();
+  save();
+}
+
+/* ---------- 地图 ---------- */
+function showMap(){
+  updateHUD();
+  mapLayer.classList.add('on');
+  $('#mapKicker').textContent = 'THE SAME RAIN · ' + (state.loop ? '第'+CN[state.loop-1]+'次' : '序章');
+  $('#mapTitle').textContent = '这一夜，去哪里';
+  const left = Math.max(0, SEG_TOTAL - state.seg);
+  $('#mapSub').textContent = '还剩 ' + left + ' 个时段 · 救赎 ' + state.redeem + ' · 误解 ' + state.mis + ' · 碎片 ' + state.frags.length + '/7';
+  const grid = $('#locGrid');
+  grid.innerHTML = '';
+  const visited = state.visited[state.loop] || [];
+  LOC_ORDER.forEach(id=>{
+    const L = LOCS[id];
+    const done = visited.includes(id);
+    const card = document.createElement('div');
+    card.className = 'loc' + (done ? ' done' : '');
+    card.innerHTML =
+      '<div class="loc-thumb" style="background-image:linear-gradient(180deg,rgba(4,7,12,.1),rgba(4,7,12,.8)),url(\''+imgUrl(L.img)+'\')">' +
+      '<div class="loc-name">'+L.name+'</div></div>' +
+      '<div class="loc-meta"><span>'+L.sub+'</span>'+(done?'<span>·</span>':'<span class="dot">●</span>')+'</div>';
+    if(!done) card.addEventListener('click', ()=>startEvent(id));
+    grid.appendChild(card);
+  });
+  $('#btnEarly').style.display = state.seg > 0 ? 'flex' : 'none';
+}
+function startEvent(id){
+  if(!state) return;
+  if(state.seg >= SEG_TOTAL) return;
+  state.visited[state.loop] = state.visited[state.loop] || [];
+  if(state.visited[state.loop].includes(id)) return;
+  state.visited[state.loop].push(id);
+  mapLayer.classList.remove('on');
+  const ev = (EVENTS[id] && EVENTS[id][state.loop]) || null;
+  const locImg = LOCS[id].img;
+  if(!ev){
+    setBg(locImg);
+    setPortrait(null);
+    runBeats([
+      {who:'', t:'雨很大。你在这里站了一会儿，什么也没等到。'},
+      {who:'', t:'有些夜晚，安静得让人害怕。'}
+    ], finishEvent);
+    return;
+  }
+  setBg(ev.bg || locImg);
+  setPortrait(null);
+  updateHUD();
+  runBeats(ev.lines, ()=>{
+    if(ev.choice) showChoices(ev.choice);
+    else finishEvent();
+  });
+}
+function finishEvent(){
+  state.seg++;
+  updateHUD();
+  save();
+  if(state.seg >= SEG_TOTAL) loopEnd();
+  else showMap();
+}
+
+/* ---------- 轮回结束 ---------- */
+function loopEnd(){
+  mapLayer.classList.remove('on');
+  choicesEl.classList.remove('on');
+  updateHUD();
+  if(state.loop >= 5){ finalScene(); return; }
+  const d = DEATHS[state.loop];
+  if(!d){ nextLoop(state.loop + 1); return; }
+  setBg(d.bg);
+  setPortrait(null);
+  runBeats(d.lines, ()=>{
+    state.mem = Math.min(5, state.loop);
+    updateHUD(); save();
+    runBeats(d.pov, ()=>{
+      if(state.loop === 4){
+        showChoices({
+          prompt:'雨还在下。你还剩最后一次机会。',
+          options:[
+            {t:'放手。让他活着，哪怕他再也不记得你。',
+             eff:{}, res:[
+               {who:'', t:'你没有再睁开眼睛。'},
+               {who:'', t:'这一次，你允许自己不再回去。'}
+             ], after:()=>showEnding('lastBack')},
+            {t:'再回去一次。最后一次。',
+             eff:{}, res:[
+               {who:'', t:'你听见雨声重新变近。'},
+               {who:'', t:'你睁开眼睛。17:40。最后一次。'}
+             ], after:()=>rewindTo(5)}
+          ]
+        });
+      }else{
+        nextLoop(state.loop + 1);
+      }
+    });
+  });
+}
+function nextLoop(n){ rewindTo(n); }
+function rewindTo(n){
+  const rw = $('#rewind');
+  rewindMode = true;
+  rw.classList.add('on');
+  setTimeout(()=>{
+    rewindMode = false;
+    rw.classList.remove('on');
+    beginLoop(n);
+  }, 1900);
+}
+function beginLoop(n){
+  state.loop = n;
+  state.seg = 0;
+  state.visited[n] = [];
+  pushLog('', '第' + CN[n-1] + '次回溯', 'sep');
+  save();
+  updateHUD();
+  screen('screen-game');
+  setBg('bg_alley');
+  setPortrait(null);
+  const intro = LOOP_INTRO[n];
+  chapterCard(CN[n-1], '第'+CN[n-1]+'次回溯', intro ? intro.sub : '', ()=>{
+    runBeats(intro ? intro.lines : [], ()=>showMap());
+  });
+}
+function chapterCard(num, title, sub, cb){
+  const ch = $('#chapter');
+  $('#chNum').textContent = num;
+  $('#chTitle').textContent = title;
+  $('#chSub').textContent = sub || '';
+  ch.classList.add('on');
+  let fired = false;
+  const go = ()=>{
+    if(fired) return;
+    fired = true;
+    ch.classList.remove('on');
+    ch.onclick = null;
+    clearTimeout(tm);
+    if(cb) cb();
+  };
+  ch.onclick = go;
+  const tm = setTimeout(go, 2600);
+}
+
+/* ---------- 终局 ---------- */
+function finalScene(){
+  state.mem = 5;
+  pushLog('', '终 局', 'sep');
+  updateHUD(); save();
+  mapLayer.classList.remove('on');
+  setBg(FINAL.bg);
+  setPortrait(FINAL.p || null);
+  runBeats(FINAL.lines, ()=>showChoices(FINAL.choice));
+}
+function resolveEnding(){
+  const f = state.flags;
+  const frags = state.frags.length;
+  const r = state.redeem, m = state.mis;
+  if(f.finalStay && f.tape && f.finalTruth && frags >= 6 && r >= 150 && m <= 30) return 'true';
+  if(m >= 60) return 'unheard';
+  if(f.finalStay){
+    if(r >= 105) return 'beforeRain';
+    return 'fifth';
+  }
+  if(f.finalGo) return 'fifth';
+  if(f.finalSend){
+    if(r >= 110 && state.mem >= 4) return 'herName';
+    return 'nextRain';
+  }
+  if(f.finalWait){
+    if(r < 80) return 'letGo';
+    return 'nextRain';
+  }
+  return 'nextRain';
+}
+function showEnding(id, fromGallery){
+  const e = ENDINGS[id];
+  if(!e) return;
+  lastFromGallery = !!fromGallery;
+  if(!fromGallery) unlockEnding(id);
+  if(!fromGallery){
+    pushLog('', '—— ' + e.type + ' · ' + e.name + ' ——', 'sep');
+    pushLog('', fmt(e.text), 'sys');
+  }
+  screen('screen-ending');
+  const visual = $('#endVisual');
+  visual.style.backgroundImage =
+    'linear-gradient(180deg,rgba(4,6,10,.12),rgba(4,6,10,.5) 62%,#04060a 100%), url("'+imgUrl(e.img)+'")';
+  $('#endBadge').textContent = e.type;
+  $('#endNo').textContent = 'ENDING ' + e.no;
+  $('#endTitle').textContent = e.name;
+  $('#endType').textContent = e.type;
+  $('#endText').textContent = fmt(e.text);
+  $('#endRedeem').textContent = state ? state.redeem : '—';
+  $('#endMis').textContent = state ? state.mis : '—';
+  $('#endMem').textContent = state ? state.mem : '—';
+  $('#endFrag').textContent = state ? state.frags.length : '—';
+  $('#btnEndGallery').textContent = fromGallery ? '返 回 图 鉴' : '结 局 图 鉴';
+  $('#btnAgain').style.display = fromGallery ? 'none' : 'flex';
+  $('#btnEndLog').style.display = fromGallery ? 'none' : 'flex';
+  $('#screen-ending').scrollTop = 0;
+  if(!fromGallery){
+    try{ localStorage.removeItem(SAVE_KEY); }catch(err){}
+  }
+  updateHUD();
+}
+
+/* ---------- 图鉴 ---------- */
+function openGallery(ret){
+  galleryReturn = ret || 'title';
+  renderGallery();
+  screen('screen-gallery');
+}
+function renderGallery(){
+  $('#galIntro').textContent = '已抵达 ' + gallery.length + ' / 8 个结局。未解锁的条目不会显示任何线索。';
+  const list = $('#galList');
+  list.innerHTML = '';
+  ENDING_ORDER.forEach(id=>{
+    const e = ENDINGS[id];
+    const on = gallery.includes(id);
+    const item = document.createElement('div');
+    item.className = 'gal-item' + (on ? '' : ' lock');
+    item.innerHTML =
+      '<div class="no">'+e.no+'</div>' +
+      '<div class="nm">'+(on ? e.name : '？？？')+'</div>' +
+      '<div class="ty">'+(on ? e.type : '尚未抵达')+'</div>';
+    if(on) item.addEventListener('click', ()=>showEnding(id, true));
+    list.appendChild(item);
+  });
+}
+
+/* ---------- 弹层 ---------- */
+function openModal(html){
+  $('#modalCard').innerHTML = html;
+  $('#modal').classList.add('on');
+}
+function closeModal(){ $('#modal').classList.remove('on'); }
+$('#modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+
+function openMenu(){
+  openModal(
+    '<h3>菜 单</h3>' +
+    '<p>'+((state && state.loop) ? '第 '+CN[state.loop-1]+' 次回溯 · 雨还在下' : '序 章 · 雨还在下')+'</p>' +
+    '<button class="btn" id="mHelp">玩 法 说 明</button>' +
+    '<button class="btn" id="mLog">剧 情 回 忆</button>' +
+    '<button class="btn" id="mGallery">结 局 图 鉴</button>' +
+    '<button class="btn" id="mFrag">记 忆 碎 片</button>' +
+    '<button class="btn" id="mRename">改 名</button>' +
+    '<button class="btn" id="mSound">'+(soundOn?'关 闭 雨 声':'开 启 雨 声')+'</button>' +
+    '<div class="hr"></div>' +
+    '<button class="btn" id="mData">存 档 导 入 / 导 出</button>' +
+    '<button class="btn" id="mRestart">重 开 一 局</button>' +
+    '<button class="btn" id="mClose">关 闭</button>'
+  );
+  $('#mHelp').onclick = ()=>openHelp();
+  $('#mLog').onclick = ()=>openLog();
+  $('#mGallery').onclick = ()=>{ closeModal(); openGallery('game'); };
+  $('#mFrag').onclick = ()=>openFrags();
+  $('#mRename').onclick = ()=>openRename();
+  $('#mSound').onclick = ()=>{ toggleSound(); openMenu(); };
+  $('#mData').onclick = ()=>openData();
+  $('#mRestart').onclick = ()=>{
+    openModal('<h3>重 开 一 局</h3><p>这一次的雨会重新开始下。当前进度不会保留。</p>' +
+      '<button class="btn" id="mYes">确 认 重 开</button><button class="btn" id="mNo">再 想 想</button>');
+    $('#mYes').onclick = ()=>{
+      try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+      closeModal();
+      state = null;
+      screen('screen-title');
+      refreshTitle();
+    };
+    $('#mNo').onclick = closeModal;
+  };
+  $('#mClose').onclick = closeModal;
+}
+function openHelp(){
+  openModal(
+    '<h3>玩 法 说 明</h3>' +
+    '<p>你有五次回溯。每一次都从 17:40 开始，到次日 05:50 结束。</p>' +
+    '<p>每一轮只有四个时段。每个时段只能去一个地点，去过的地方这一轮就关了。</p>' +
+    '<p><b style="color:#c9a86a">救赎</b> 决定你能不能救下他；<b style="color:#d47a81">误解</b> 会让你们越走越远；<b style="color:#93b6d4">他的记忆</b> 决定他能不能认出你。</p>' +
+    '<p>沿途有七枚记忆碎片。它们不会直接给你答案，但会在最后那一刻，决定他信不信你。</p>' +
+    '<p>右上角的「忆」可以回看之前的每一句对话；菜单里可以导出或导入存档。</p>' +
+    '<p>06:00，雨会停。</p>' +
+    '<button class="btn" id="mBack">返 回</button>'
+  );
+  $('#mBack').onclick = openMenu;
+}
+function openFrags(){
+  let html = '<h3>记 忆 碎 片</h3><div class="frag-list">';
+  Object.keys(FRAGS).forEach(k=>{
+    const on = state && state.frags.includes(k);
+    html += '<div class="frag-item'+(on?'':' miss')+'"><b>'+(on?FRAGS[k].name:'？？？')+'</b><span>'+(on?FRAGS[k].desc:'尚未拾得')+'</span></div>';
+  });
+  html += '</div><button class="btn" id="mBack">返 回</button>';
+  openModal(html);
+  $('#mBack').onclick = openMenu;
+}
+function openRename(){
+  openModal('<h3>改 名</h3><p>名字会立刻出现在所有还没说出口的台词里。</p>' +
+    '<input id="renameInput" placeholder="柚乞怜" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(150,180,210,.35);color:#eef3f8;font-family:inherit;font-size:22px;letter-spacing:.12em;text-align:center;padding:8px;outline:none;margin:8px 0 4px" maxlength="12">' +
+    '<button class="btn" id="mYes">写 下</button><button class="btn" id="mNo">取 消</button>');
+  $('#renameInput').value = state ? state.name : '';
+  $('#mYes').onclick = ()=>{
+    const v = ($('#renameInput').value || '').trim().slice(0,12);
+    if(!v){ toast('名字不能是空的。'); return; }
+    state.name = v;
+    try{ localStorage.setItem(NAME_KEY, v); }catch(e){}
+    save(); closeModal(); toast('她叫「'+v+'」。');
+  };
+  $('#mNo').onclick = openMenu;
+}
+
+/* ---------- 剧情回忆 / 存档 ---------- */
+function openLog(){
+  const items = storyLog.slice(-200);
+  let html = '<h3>剧 情 回 忆</h3>';
+  if(!items.length){
+    html += '<p>还没有可以回忆的对话。</p>';
+  }else{
+    html += '<div class="log-list" id="logList">';
+    items.forEach(it=>{
+      if(it.k === 'sep'){
+        html += '<div class="log-item sep"><div class="lt">' + esc(it.t) + '</div></div>';
+      }else{
+        const who = it.w ? '<div class="lw' + (it.w === '你' ? ' her' : '') + '">' + esc(it.w) + '</div>' : '';
+        html += '<div class="log-item ' + esc(it.k || '') + '">' + who + '<div class="lt">' + esc(it.t) + '</div></div>';
+      }
+    });
+    html += '</div>';
+  }
+  html += '<div class="data-actions"><button class="btn" id="mCopyLog">复 制 全 文</button><button class="btn" id="mBack">关 闭</button></div>';
+  openModal(html);
+  const list = $('#logList');
+  if(list) list.scrollTop = list.scrollHeight;
+  $('#mCopyLog').onclick = ()=>{
+    if(!storyLog.length){ toast('还没有对话。'); return; }
+    copyText(logToText());
+    toast('剧情回忆已复制');
+  };
+  $('#mBack').onclick = closeModal;
+}
+function buildExport(){
+  return {
+    app: '时空救赎',
+    v: 1,
+    exportedAt: new Date().toISOString(),
+    save: loadSave(),
+    gallery: gallery.slice(),
+    name: lastName(),
+    log: storyLog.slice()
+  };
+}
+function openData(){
+  openModal(
+    '<h3>存 档 导 入 / 导 出</h3>' +
+    '<p>存档包含当前进度、结局图鉴和剧情回忆。导出后可在别的设备导入继续。</p>' +
+    '<button class="btn primary" id="mExport">导 出 存 档</button>' +
+    '<button class="btn" id="mImport">导 入 存 档</button>' +
+    '<button class="btn" id="mLog">剧 情 回 忆</button>' +
+    '<button class="btn" id="mBack">关 闭</button>'
+  );
+  $('#mExport').onclick = openExport;
+  $('#mImport').onclick = openImport;
+  $('#mLog').onclick = openLog;
+  $('#mBack').onclick = closeModal;
+}
+function openExport(){
+  openModal(
+    '<h3>导 出 存 档</h3>' +
+    '<p>下载一个 .json 文件保存。换设备后从「导入存档」选中它即可。</p>' +
+    '<button class="btn primary" id="mDownload">下 载 存 档 文 件</button>' +
+    '<button class="btn" id="mCopySave">复 制 存 档 文 本</button>' +
+    '<button class="btn" id="mBack">返 回</button>'
+  );
+  $('#mDownload').onclick = ()=>{
+    try{
+      const blob = new Blob([JSON.stringify(buildExport())], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '时空救赎-存档-' + stamp() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+      toast('存档已导出');
+    }catch(e){ toast('下载失败，请用「复制存档文本」'); }
+  };
+  $('#mCopySave').onclick = ()=>{ copyText(JSON.stringify(buildExport())); toast('存档文本已复制'); };
+  $('#mBack').onclick = openData;
+}
+function openImport(){
+  openModal(
+    '<h3>导 入 存 档</h3>' +
+    '<p>选择之前导出的 .json 存档。导入会覆盖当前进度、结局图鉴和剧情回忆。</p>' +
+    '<input type="file" id="importFile" accept=".json,application/json" style="display:none">' +
+    '<button class="btn primary" id="mPick">选 择 存 档 文 件</button>' +
+    '<button class="btn" id="mBack">取 消</button>'
+  );
+  $('#mPick').onclick = ()=>$('#importFile').click();
+  $('#importFile').onchange = e=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ()=>applyImport(String(reader.result));
+    reader.onerror = ()=>toast('读取文件失败。');
+    reader.readAsText(f);
+  };
+  $('#mBack').onclick = closeModal;
+}
+function applyImport(text){
+  let data;
+  try{ data = JSON.parse(text); }catch(e){ toast('不是有效的存档文件。'); return; }
+  const wrapped = !!(data && typeof data === 'object' && ('save' in data || 'gallery' in data || 'log' in data));
+  const saveData = wrapped ? data.save : data;
+  const hasSave = wrapped ? ('save' in data) : true;
+  const hasGal = wrapped && Array.isArray(data.gallery);
+  const hasLog = wrapped && Array.isArray(data.log);
+  const gal = hasGal ? data.gallery.filter(x=>ENDING_ORDER.includes(x)) : [];
+  const log = hasLog ? data.log.filter(x=>x && typeof x.t === 'string').slice(-500) : [];
+  if(saveData && !(typeof saveData.name === 'string' && typeof saveData.loop === 'number' && saveData.loop >= 0 && saveData.loop <= 5)){
+    toast('存档内容无法识别。'); return;
+  }
+  if(!hasSave && !hasGal && !hasLog){
+    toast('存档内容无法识别。'); return;
+  }
+  openModal(
+    '<h3>确 认 导 入</h3><p>当前进度、结局图鉴和剧情回忆都会被覆盖。确定吗？</p>' +
+    '<button class="btn primary" id="mYes">导 入</button>' +
+    '<button class="btn" id="mNo">取 消</button>'
+  );
+  $('#mYes').onclick = ()=>{
+    try{
+      if(saveData){
+        const s = Object.assign({}, saveData);
+        s.flags = s.flags || {};
+        s.frags = s.frags || [];
+        s.visited = s.visited || {};
+        localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+        if(s.name) localStorage.setItem(NAME_KEY, s.name);
+      }else if(hasSave){
+        localStorage.removeItem(SAVE_KEY);
+      }
+      if(wrapped && typeof data.name === 'string' && data.name) localStorage.setItem(NAME_KEY, data.name);
+      if(hasGal) localStorage.setItem(GAL_KEY, JSON.stringify(gal));
+      if(hasLog) localStorage.setItem(LOG_KEY, JSON.stringify(log));
+    }catch(e){ toast('写入失败，存储空间可能不足。'); return; }
+    if(hasGal) gallery = gal;
+    if(hasLog) storyLog = log;
+    state = null;
+    closeModal();
+    screen('screen-title');
+    refreshTitle();
+    toast('存档已导入');
+  };
+  $('#mNo').onclick = closeModal;
+}
+
+/* ---------- 标题 ---------- */
+function refreshTitle(){
+  const s = loadSave();
+  $('#btnContinue').style.opacity = s ? '1' : '.42';
+  $('#btnContinue').style.pointerEvents = s ? 'auto' : 'none';
+  $('#titleProgress').textContent = '结局 ' + gallery.length + ' / 8';
+}
+$('#btnStart').addEventListener('click', ()=>{
+  const s = loadSave();
+  if(s){
+    openModal('<h3>开 始 新 的 回 溯</h3><p>现有的进度会被这场雨冲掉。要继续吗？</p>' +
+      '<button class="btn" id="mYes">开 始</button><button class="btn" id="mNo">取 消</button>');
+    $('#mYes').onclick = ()=>{ closeModal(); startPrologue(); };
+    $('#mNo').onclick = closeModal;
+  }else{
+    startPrologue();
+  }
+});
+$('#btnContinue').addEventListener('click', ()=>{
+  const s = loadSave();
+  if(!s){ toast('还没有可以继续的回溯。'); return; }
+  state = s;
+  state.visited[state.loop] = state.visited[state.loop] || [];
+  screen('screen-game');
+  updateHUD();
+  setBg('bg_alley');
+  toast('雨还在下。');
+  if(state.seg >= SEG_TOTAL) loopEnd();
+  else showMap();
+});
+$('#btnGallery').addEventListener('click', ()=>openGallery('title'));
+
+function startPrologue(){
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+  clearLog();
+  pushLog('', '序 章 · 那场雨', 'sep');
+  state = freshState('她');
+  state.loop = 0;
+  screen('screen-game');
+  setBg('bg_blood');
+  setPortrait(null);
+  updateHUD();
+  $('#hudLoop').textContent = '序 章';
+  $('#hudTime').textContent = '05:50';
+  runBeats(PROLOGUE, ()=>{
+    screen('screen-name');
+    const inp = $('#nameInput');
+    inp.value = localStorage.getItem(NAME_KEY) || '';
+    setTimeout(()=>inp.focus(), 300);
+  });
+}
+$('#btnNameGo').addEventListener('click', ()=>{
+  let v = ($('#nameInput').value || '').trim().slice(0,12);
+  if(!v) v = '柚乞怜';
+  try{ localStorage.setItem(NAME_KEY, v); }catch(e){}
+  state = freshState(v);
+  save();
+  rewindTo(1);
+});
+$('#btnNameBack').addEventListener('click', ()=>{
+  screen('screen-title');
+  refreshTitle();
+});
+$('#nameInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter'){ e.preventDefault(); $('#btnNameGo').click(); }
+});
+
+/* ---------- 结局按钮 ---------- */
+$('#btnEndGallery').addEventListener('click', ()=>{
+  if(lastFromGallery) openGallery(galleryReturn);
+  else openGallery('ending');
+});
+$('#btnAgain').addEventListener('click', ()=>{
+  screen('screen-title');
+  refreshTitle();
+});
+$('#btnGalBack').addEventListener('click', ()=>{
+  if(galleryReturn === 'ending') screen('screen-ending');
+  else if(galleryReturn === 'game' && state) screen('screen-game');
+  else screen('screen-title');
+  refreshTitle();
+});
+$('#btnMenu').addEventListener('click', openMenu);
+$('#btnLog').addEventListener('click', openLog);
+$('#btnEndLog').addEventListener('click', openLog);
+$('#btnData').addEventListener('click', openData);
+$('#pillFrag').addEventListener('click', openFrags);
+$('#btnEarly').addEventListener('click', ()=>{
+  if(!state || state.seg === 0) return;
+  openModal('<h3>提 前 走 进 雨 里</h3><p>剩下的时段会被雨吞掉。剩下的地点也去不了了。</p>' +
+    '<button class="btn" id="mYes">走 进 雨 里</button><button class="btn" id="mNo">再 等 等</button>');
+  $('#mYes').onclick = ()=>{ closeModal(); finishEarly(); };
+  $('#mNo').onclick = closeModal;
+});
+function finishEarly(){
+  if(state.seg >= SEG_TOTAL) return;
+  state.seg = SEG_TOTAL;
+  updateHUD(); save();
+  loopEnd();
+}
+
+/* ---------- 雨 ---------- */
+const cv = $('#rain'), ctx = cv.getContext('2d');
+let drops = [], dpr = Math.min(window.devicePixelRatio || 1, 2);
+let rewindMode = false;
+function resizeRain(){
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w * dpr; cv.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drops = [];
+  const count = Math.floor(w / 3.2);
+  for(let i=0;i<count;i++){
+    drops.push({x:Math.random()*w, y:Math.random()*h, l:6+Math.random()*16, s:.5+Math.random()*1.1, a:.15+Math.random()*.45});
+  }
+}
+function rainLoop(){
+  const w = cv.clientWidth, h = cv.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  ctx.lineWidth = 1;
+  for(const d of drops){
+    ctx.strokeStyle = 'rgba(180,205,225,'+d.a+')';
+    ctx.beginPath();
+    ctx.moveTo(d.x, d.y);
+    ctx.lineTo(d.x - d.l*0.28, d.y + (rewindMode ? -d.l : d.l));
+    ctx.stroke();
+    if(rewindMode){
+      d.y -= d.s*7;
+      if(d.y < -20){ d.y = h + Math.random()*40; d.x = Math.random()*w; }
+    }else{
+      d.y += d.s*6;
+      d.x -= d.s*1.6;
+      if(d.y > h + 20 || d.x < -20){ d.y = -Math.random()*60; d.x = Math.random()*(w+40); }
+    }
+  }
+  requestAnimationFrame(rainLoop);
+}
+window.addEventListener('resize', resizeRain);
+resizeRain(); rainLoop();
+
+/* ---------- 雨声 ---------- */
+let audioCtx = null, noiseSrc = null, noiseGain = null, soundOn = false;
+function toggleSound(){
+  try{
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      audioCtx = new AC();
+      const len = Math.floor(audioCtx.sampleRate * 2);
+      const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for(let i=0;i<len;i++) data[i] = Math.random()*2 - 1;
+      noiseSrc = audioCtx.createBufferSource();
+      noiseSrc.buffer = buf; noiseSrc.loop = true;
+      const lp = audioCtx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 1100;
+      const hp = audioCtx.createBiquadFilter();
+      hp.type = 'highpass'; hp.frequency.value = 240;
+      noiseGain = audioCtx.createGain();
+      noiseGain.gain.value = 0.06;
+      noiseSrc.connect(hp); hp.connect(lp); lp.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+      noiseSrc.start();
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    soundOn = !soundOn;
+    noiseGain.gain.value = soundOn ? 0.06 : 0;
+    toast(soundOn ? '雨声 · 开' : '雨声 · 关');
+  }catch(e){}
+}
+$('#btnSound').addEventListener('click', toggleSound);
+
+/* ---------- 初始化 ---------- */
+refreshTitle();
+setBg('bg_blood');
+updateHUD();
+setTimeout(()=>{ $('#fade').style.opacity = '0'; }, 120);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+</script>
+</body>
+</html>
